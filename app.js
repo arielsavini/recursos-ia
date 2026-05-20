@@ -15,6 +15,22 @@ const DEFAULT_TOOLS = [
   { id: 'notebooklm',     name: 'NotebookLM',        emoji: '📓', color: '#34a853', desc: 'Herramienta de Google para analizar, resumir y conversar con tus propios documentos.' },
 ];
 
+// ===== SEED RESOURCES =====
+const SEED_RESOURCES = [
+  {
+    id: 'seed_notebooklm_local_01',
+    toolId: 'notebooklm',
+    type: 'webpage',
+    title: 'NotebookLM Tips',
+    content: 'https://arielsavini.github.io/recursos-ia/notebooklm-tips.html',
+    body: '',
+    source: 'arielsavini.github.io',
+    notes: '',
+    tags: ['tips', 'notebooklm', 'guia'],
+    createdAt: '2026-05-20T00:00:00.000Z',
+  },
+];
+
 let state = loadState();
 
 // ===== UI REFS =====
@@ -62,22 +78,6 @@ let currentFilter = 'all';
 let currentSearch = '';
 let currentTopic  = null;
 let viewingId     = null;
-
-// ===== SEED RESOURCES =====
-const SEED_RESOURCES = [
-  {
-    id: 'seed_notebooklm_local_01',
-    toolId: 'notebooklm',
-    type: 'webpage',
-    title: 'Nuevo Documento de texto',
-    content: 'https://arielsavini.github.io/recursos-ia/notebooklm-tips.html',
-    body: '',
-    source: 'arielsavini.github.io',
-    notes: '',
-    tags: ['tips', 'notebooklm', 'guia'],
-    createdAt: new Date().toISOString(),
-  },
-];
 
 // ===== LOAD / SAVE =====
 function loadState() {
