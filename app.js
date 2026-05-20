@@ -104,6 +104,16 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STATE_KEY, JSON.stringify(state));
+  // Firebase sync (if configured)
+  if (window._fbDoc) {
+    window._fbDoc.set(state).catch(err => {
+      if (err.code === 'resource-exhausted' || (err.message && err.message.includes('size'))) {
+        console.warn('Firebase: documento demasiado grande (imágenes base64). Guardado solo en localStorage.');
+      } else {
+        console.warn('Firebase sync error:', err);
+      }
+    });
+  }
 }
 
 // Ensures DEFAULT_TOOLS not yet in stored tools are added
@@ -731,3 +741,71 @@ document.getElementById('importFileInput').addEventListener('change', e => {
 // ===== INIT =====
 renderSidebar();
 renderResources();
+
+// ===== FIREBASE SYNC =====
+window._fbDoc = null;
+window._fbIgnoreNext = false; // evita loop: propio save → onSnapshot → re-render
+
+window.initFirebaseSync = function (config) {
+  try {
+    if (!window.firebase) { console.warn('Firebase SDK no cargado.'); return; }
+    if (!firebase.apps.length) firebase.initializeApp(config);
+    const db = firebase.firestore();
+    window._fbDoc = db.collection('hub').doc('main');
+
+    // 1. Carga inicial desde Firestore
+    window._fbDoc.get().then(snap => {
+      if (snap.exists()) {
+        const data = snap.data();
+        const incoming = {
+          tools: mergeTools(data.tools || []),
+          resources: data.resources || [],
+        };
+        SEED_RESOURCES.forEach(seed => {
+          if (!incoming.resources.find(r => r.id === seed.id)) {
+            incoming.resources.push({ ...seed });
+          }
+        });
+        state = incoming;
+        localStorage.setItem(STATE_KEY, JSON.stringify(state));
+        renderSidebar();
+        renderResources();
+        console.log('Firebase: datos cargados desde Firestore ✓');
+      } else {
+        // Primera vez: sube el estado local a Firestore
+        window._fbDoc.set(state).then(() => {
+          console.log('Firebase: estado local subido a Firestore ✓');
+        });
+      }
+    }).catch(err => console.warn('Firebase carga inicial error:', err));
+
+    // 2. Listener en tiempo real (detecta cambios desde otro navegador)
+    window._fbDoc.onSnapshot(snap => {
+      if (!snap.exists() || window._fbIgnoreNext) {
+        window._fbIgnoreNext = false;
+        return;
+      }
+      const data = snap.data();
+      const localJson = JSON.stringify({ tools: state.tools, resources: state.resources });
+      const remoteJson = JSON.stringify({ tools: data.tools || [], resources: data.resources || [] });
+      if (localJson === remoteJson) return; // sin cambios reales
+
+      state = {
+        tools: mergeTools(data.tools || []),
+        resources: data.resources || [],
+      };
+      SEED_RESOURCES.forEach(seed => {
+        if (!state.resources.find(r => r.id === seed.id)) {
+          state.resources.push({ ...seed });
+        }
+      });
+      localStorage.setItem(STATE_KEY, JSON.stringify(state));
+      renderSidebar();
+      renderResources();
+      console.log('Firebase: estado actualizado desde otro navegador ✓');
+    }, err => console.warn('Firebase listener error:', err));
+
+  } catch (err) {
+    console.warn('Firebase init error:', err);
+  }
+};

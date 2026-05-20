@@ -189,6 +189,31 @@
     </div>
   </div>
 
+  <!-- Firebase SDK (compat v10) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
   <script src="app.js"></script>
-</body>
-</html>
+
+  <!--
+    ═══════════════════════════════════════════════════
+    CONFIGURACIÓN FIREBASE — descomentá y completá
+    ═══════════════════════════════════════════════════
+    1. Ve a https://console.firebase.google.com
+    2. Creá/abrí tu proyecto → Project Settings → Web apps → Registrar app web
+    3. Copiá el objeto firebaseConfig
+    4. Activá Firestore: Build → Firestore Database → Create database → Modo prueba → elegir región
+    5. Pegá tu config abajo y quitá los comentarios <!-- y - - >
+  -->
+  <!--
+  <script>
+    window.initFirebaseSync({
+      apiKey:            "TU_API_KEY",
+      authDomain:        "TU_PROYECTO.firebaseapp.com",
+      projectId:         "TU_PROYECTO_ID",
+      storageBucket:     "TU_PROYECTO.appspot.com",
+      messagingSenderId: "TU_SENDER_ID",
+      appId:             "TU_APP_ID"
+    });
+  </script>
+  -->
