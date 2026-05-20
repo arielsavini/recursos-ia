@@ -53,6 +53,7 @@
           <button class="filter-tab" data-filter="webpage">🔗 Páginas</button>
           <button class="filter-tab" data-filter="social">📱 Redes Sociales</button>
           <button class="filter-tab" data-filter="text">📝 Textos</button>
+          <button class="filter-tab" data-filter="image">🖼️ Imágenes</button>
         </div>
       </div>
 
@@ -91,6 +92,7 @@
             <button type="button" class="type-btn active" data-type="webpage">🔗 Página Web</button>
             <button type="button" class="type-btn" data-type="social">📱 Red Social</button>
             <button type="button" class="type-btn" data-type="text">📝 Texto</button>
+            <button type="button" class="type-btn" data-type="image">🖼️ Imagen</button>
           </div>
           <input type="hidden" id="resourceType" value="webpage" />
         </div>
@@ -108,6 +110,14 @@
         <div class="form-group" id="bodyGroup" style="display:none;">
           <label>Contenido</label>
           <textarea id="resourceBody" rows="5" placeholder="Pega aquí el texto, post o descripción..."></textarea>
+        </div>
+
+        <div class="form-group" id="imageGroup" style="display:none;">
+          <label>Subir imagen <span class="label-hint">(JPG, PNG, WebP · máx ~1 MB recomendado)</span></label>
+          <input type="file" id="resourceImageFile" accept="image/*" class="file-input" />
+          <div id="imagePreview" class="image-preview" style="display:none;">
+            <img id="imagePreviewImg" src="" alt="Vista previa" />
+          </div>
         </div>
 
         <div class="form-group">

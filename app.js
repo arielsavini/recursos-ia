@@ -74,11 +74,12 @@ const viewEdit       = document.getElementById('viewEdit');
 const viewDelete     = document.getElementById('viewDelete');
 
 // ===== FILTER STATE =====
-let currentTool   = 'all';
-let currentFilter = 'all';
-let currentSearch = '';
-let currentTopic  = null;
-let viewingId     = null;
+let currentTool      = 'all';
+let currentFilter    = 'all';
+let currentSearch    = '';
+let currentTopic     = null;
+let viewingId        = null;
+let pendingImageData = null;
 
 // ===== LOAD / SAVE =====
 function loadState() {
@@ -137,7 +138,7 @@ function isUrl(str) {
 }
 
 function getTypeBadge(type) {
-  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto' };
+  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto', image: '🖼️ Imagen' };
   return map[type] || type;
 }
 
@@ -305,9 +306,16 @@ function renderResources() {
     card.className = 'resource-card';
     card.style.setProperty('--card-color', tool ? tool.color : '#6366f1');
 
+    const isImage = resource.type === 'image';
     const displayContent = resource.type === 'text'
       ? (resource.body || '').slice(0, 120)
-      : (resource.content || '');
+      : isImage
+        ? (isUrl(resource.content || '') ? resource.content : '')
+        : (resource.content || '');
+
+    const imageHtml = isImage && resource.content
+      ? `<div class="card-image"><img src="${escapeHtml(resource.content)}" alt="${escapeHtml(resource.title)}" loading="lazy" /></div>`
+      : '';
 
     const tagsHtml = (resource.tags || []).length
       ? `<div class="card-tags">${resource.tags.map(t => `<span class="tag hashtag" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</span>`).join('')}</div>`
@@ -326,7 +334,8 @@ function renderResources() {
         <span class="card-date">${formatDate(resource.createdAt)}</span>
       </div>
       <div class="card-title">${escapeHtml(resource.title)}</div>
-      ${displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
+      ${imageHtml}
+      ${!isImage && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
       ${sourceHtml}
       ${tagsHtml}
     `;
@@ -359,7 +368,18 @@ function openViewModal(id) {
   html += `<span class="badge ${getTypeClass(r.type)}">${getTypeBadge(r.type)}</span>`;
   html += `</div>`;
 
-  if (r.type !== 'text' && r.content) {
+  if (r.type === 'image' && r.content) {
+    html += `<div class="view-section">
+      <div class="view-label">Imagen</div>
+      <img class="view-image-full" src="${escapeHtml(r.content)}" alt="${escapeHtml(r.title)}" />
+    </div>`;
+    if (isUrl(r.content)) {
+      html += `<div class="view-section">
+        <div class="view-label">URL de la imagen</div>
+        <div class="view-content"><a class="view-link" href="${escapeHtml(r.content)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.content)}</a></div>
+      </div>`;
+    }
+  } else if (r.type !== 'text' && r.content) {
     html += `<div class="view-section">
       <div class="view-label">${r.type === 'webpage' ? 'URL / Enlace' : 'Enlace / Referencia'}</div>
       <div class="view-content">`;
@@ -414,6 +434,10 @@ function openResourceModal(id = null) {
   fldId.value = '';
   fldType.value = 'webpage';
   document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === 'webpage'));
+  // Reset image state
+  pendingImageData = null;
+  document.getElementById('imagePreview').style.display = 'none';
+  document.getElementById('imagePreviewImg').src = '';
   updateTypeUI('webpage');
 
   if (id) {
@@ -424,13 +448,18 @@ function openResourceModal(id = null) {
     fldTool.value     = r.toolId;
     fldType.value     = r.type;
     fldTitle.value    = r.title;
-    fldContent.value  = r.content || '';
+    fldContent.value  = r.type === 'image' ? '' : (r.content || '');
     fldBody.value     = r.body || '';
     fldSource.value   = r.source || '';
     fldNotes.value    = r.notes || '';
     fldTags.value     = (r.tags || []).join(', ');
     document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === r.type));
     updateTypeUI(r.type);
+    // Show existing image preview
+    if (r.type === 'image' && r.content) {
+      document.getElementById('imagePreviewImg').src = r.content;
+      document.getElementById('imagePreview').style.display = 'block';
+    }
   } else {
     modalResTitle.textContent = 'Agregar Recurso';
     if (currentTool !== 'all') fldTool.value = currentTool;
@@ -442,9 +471,16 @@ function openResourceModal(id = null) {
 
 // ===== TYPE UI =====
 function updateTypeUI(type) {
+  const imageGroup = document.getElementById('imageGroup');
+  imageGroup.style.display = type === 'image' ? 'flex' : 'none';
+
   if (type === 'text') {
     contentGroup.style.display = 'none';
     bodyGroup.style.display = 'flex';
+  } else if (type === 'image') {
+    contentGroup.style.display = 'flex';
+    contentLabel.textContent = 'URL de la imagen (opcional si subís archivo)';
+    bodyGroup.style.display = 'none';
   } else {
     contentGroup.style.display = 'flex';
     bodyGroup.style.display = 'flex';
@@ -461,11 +497,15 @@ resourceForm.addEventListener('submit', e => {
     .map(t => t.trim())
     .filter(Boolean);
 
+  const resolvedContent = fldType.value === 'image' && pendingImageData
+    ? pendingImageData
+    : fldContent.value.trim();
+
   const data = {
     toolId:    fldTool.value,
     type:      fldType.value,
     title:     fldTitle.value.trim(),
-    content:   fldContent.value.trim(),
+    content:   resolvedContent,
     body:      fldBody.value.trim(),
     source:    fldSource.value.trim(),
     notes:     fldNotes.value.trim(),
@@ -572,6 +612,21 @@ document.getElementById('typeSelector').addEventListener('click', e => {
   fldType.value = type;
   document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b === btn));
   updateTypeUI(type);
+});
+
+// ===== IMAGE UPLOAD =====
+document.getElementById('resourceImageFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) { pendingImageData = null; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImageData = ev.target.result;
+    const preview = document.getElementById('imagePreview');
+    const img    = document.getElementById('imagePreviewImg');
+    img.src = pendingImageData;
+    preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
 });
 
 // ===== FILTER TABS =====
