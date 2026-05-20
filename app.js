@@ -47,7 +47,6 @@ const modalResource  = document.getElementById('modalResource');
 const resourceForm   = document.getElementById('resourceForm');
 const modalResTitle  = document.getElementById('modalResourceTitle');
 const fldId          = document.getElementById('resourceId');
-const fldTool        = document.getElementById('resourceTool');
 const fldType        = document.getElementById('resourceType');
 const fldTitle       = document.getElementById('resourceTitle');
 const fldContent     = document.getElementById('resourceContent');
@@ -150,6 +149,27 @@ function getTool(id) {
   return state.tools.find(t => t.id === id);
 }
 
+function getResourceToolIds(r) {
+  return r.toolIds || (r.toolId ? [r.toolId] : []);
+}
+
+// ===== RENDER TOOL PICKER =====
+function renderToolPicker(selectedIds = []) {
+  const picker = document.getElementById('toolPicker');
+  if (!picker) return;
+  picker.innerHTML = '';
+  state.tools.forEach(tool => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'tool-pick-btn' + (selectedIds.includes(tool.id) ? ' selected' : '');
+    btn.dataset.toolId = tool.id;
+    btn.style.setProperty('--pick-color', tool.color);
+    btn.textContent = `${tool.emoji} ${tool.name}`;
+    btn.addEventListener('click', () => btn.classList.toggle('selected'));
+    picker.appendChild(btn);
+  });
+}
+
 // ===== RENDER SIDEBAR =====
 function renderSidebar() {
   // Clear dynamic items (keep 'all')
@@ -161,7 +181,7 @@ function renderSidebar() {
   document.getElementById('count-all').textContent = state.resources.length;
 
   state.tools.forEach(tool => {
-    const count = state.resources.filter(r => r.toolId === tool.id).length;
+    const count = state.resources.filter(r => getResourceToolIds(r).includes(tool.id)).length;
     const li = document.createElement('li');
     li.className = 'tool-item' + (currentTool === tool.id ? ' active' : '');
     li.dataset.tool = tool.id;
@@ -178,16 +198,7 @@ function renderSidebar() {
   // Update all count
   document.getElementById('count-all').textContent = state.resources.length;
 
-  // Update tool select in form
-  const prevVal = fldTool.value;
-  fldTool.innerHTML = '<option value="">— Selecciona una herramienta —</option>';
-  state.tools.forEach(tool => {
-    const opt = document.createElement('option');
-    opt.value = tool.id;
-    opt.textContent = `${tool.emoji} ${tool.name}`;
-    fldTool.appendChild(opt);
-  });
-  if (prevVal) fldTool.value = prevVal;
+  renderToolPicker([]);
 
   // Render topics
   renderTopics();
@@ -201,7 +212,7 @@ function renderTopics() {
   // Gather all tags from resources filtered by current tool
   let pool = currentTool === 'all'
     ? state.resources
-    : state.resources.filter(r => r.toolId === currentTool);
+    : state.resources.filter(r => getResourceToolIds(r).includes(currentTool));
 
   const allTags = pool.flatMap(r => r.tags || []);
   const counts = {};
@@ -260,7 +271,7 @@ function renderResources() {
 
   // Filter by tool
   if (currentTool !== 'all') {
-    list = list.filter(r => r.toolId === currentTool);
+    list = list.filter(r => getResourceToolIds(r).includes(currentTool));
   }
 
   // Filter by type
@@ -301,10 +312,11 @@ function renderResources() {
   resourcesGrid.style.display = 'grid';
 
   list.forEach(resource => {
-    const tool = getTool(resource.toolId);
+    const rToolIds = getResourceToolIds(resource);
+    const firstTool = rToolIds.length ? getTool(rToolIds[0]) : null;
     const card = document.createElement('div');
     card.className = 'resource-card';
-    card.style.setProperty('--card-color', tool ? tool.color : '#6366f1');
+    card.style.setProperty('--card-color', firstTool ? firstTool.color : '#6366f1');
 
     const isImage = resource.type === 'image';
     const displayContent = resource.type === 'text'
@@ -328,7 +340,7 @@ function renderResources() {
     card.innerHTML = `
       <div class="card-top">
         <div class="card-badges">
-          ${tool ? `<span class="badge badge-tool">${escapeHtml(tool.emoji)} ${escapeHtml(tool.name)}</span>` : ''}
+          ${rToolIds.map(tid => { const t = getTool(tid); return t ? `<span class="badge badge-tool">${escapeHtml(t.emoji)} ${escapeHtml(t.name)}</span>` : ''; }).join('')}
           <span class="badge ${getTypeClass(resource.type)}">${getTypeBadge(resource.type)}</span>
         </div>
         <span class="card-date">${formatDate(resource.createdAt)}</span>
@@ -359,12 +371,14 @@ function openViewModal(id) {
   if (!r) return;
 
   viewingId = id;
-  const tool = getTool(r.toolId);
-
   viewTitle.textContent = r.title;
 
+  const vToolIds = getResourceToolIds(r);
   let html = `<div class="view-badges">`;
-  if (tool) html += `<span class="badge badge-tool">${escapeHtml(tool.emoji)} ${escapeHtml(tool.name)}</span>`;
+  vToolIds.forEach(tid => {
+    const t = getTool(tid);
+    if (t) html += `<span class="badge badge-tool">${escapeHtml(t.emoji)} ${escapeHtml(t.name)}</span>`;
+  });
   html += `<span class="badge ${getTypeClass(r.type)}">${getTypeBadge(r.type)}</span>`;
   html += `</div>`;
 
@@ -445,7 +459,7 @@ function openResourceModal(id = null) {
     if (!r) return;
     modalResTitle.textContent = 'Editar Recurso';
     fldId.value       = r.id;
-    fldTool.value     = r.toolId;
+    renderToolPicker(getResourceToolIds(r));
     fldType.value     = r.type;
     fldTitle.value    = r.title;
     fldContent.value  = r.type === 'image' ? '' : (r.content || '');
@@ -462,7 +476,7 @@ function openResourceModal(id = null) {
     }
   } else {
     modalResTitle.textContent = 'Agregar Recurso';
-    if (currentTool !== 'all') fldTool.value = currentTool;
+    renderToolPicker(currentTool !== 'all' ? [currentTool] : []);
   }
 
   modalView.style.display = 'none';
@@ -497,12 +511,16 @@ resourceForm.addEventListener('submit', e => {
     .map(t => t.trim())
     .filter(Boolean);
 
+  const selectedToolIds = Array.from(
+    document.querySelectorAll('#toolPicker .tool-pick-btn.selected')
+  ).map(btn => btn.dataset.toolId);
+
   const resolvedContent = fldType.value === 'image' && pendingImageData
     ? pendingImageData
     : fldContent.value.trim();
 
   const data = {
-    toolId:    fldTool.value,
+    toolIds:   selectedToolIds,
     type:      fldType.value,
     title:     fldTitle.value.trim(),
     content:   resolvedContent,
@@ -512,7 +530,7 @@ resourceForm.addEventListener('submit', e => {
     tags,
   };
 
-  if (!data.toolId) { alert('Por favor selecciona una herramienta IA.'); return; }
+  if (selectedToolIds.length === 0) { alert('Por favor seleccioná al menos una herramienta IA.'); return; }
   if (!data.title)  { alert('El título es obligatorio.'); return; }
 
   if (fldId.value) {
