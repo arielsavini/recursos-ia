@@ -770,11 +770,27 @@ function renderAuthUI() {
   } else {
     area.innerHTML = `<button class="btn-ghost auth-btn" id="btnSignIn">🔐 Acceder</button>`;
     document.getElementById('btnSignIn').addEventListener('click', () => {
-      if (!window._fbAuth || !window.firebase) return;
+      if (!window._fbAuth || !window.firebase) {
+        alert('Firebase no está inicializado.\n\nSi estás probando localmente, el login solo funciona desde el sitio desplegado:\nhttps://arielsavini.github.io/recursos-ia');
+        return;
+      }
+      if (location.protocol === 'file:') {
+        alert('El login con Google requiere HTTPS.\n\nAbrí el sitio desde:\nhttps://arielsavini.github.io/recursos-ia');
+        return;
+      }
       const provider = new firebase.auth.GoogleAuthProvider();
       provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
       window._fbAuth.signInWithPopup(provider)
-        .catch(err => { console.warn('Sign-in error:', err); alert('Error al iniciar sesión. Intentá de nuevo.'); });
+        .catch(err => {
+          console.warn('Sign-in error:', err);
+          if (err.code === 'auth/unauthorized-domain') {
+            alert('Este dominio no está autorizado en Firebase.\nVerificá la configuración en Firebase Console → Authentication → Settings → Authorized domains.');
+          } else if (err.code === 'auth/popup-blocked') {
+            alert('El navegador bloqueó el popup. Permití las ventanas emergentes para este sitio.');
+          } else {
+            alert('Error al iniciar sesión. Intentá de nuevo.\n(' + err.code + ')');
+          }
+        });
     });
   }
 }
