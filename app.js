@@ -755,7 +755,7 @@ window.initFirebaseSync = function (config) {
 
     // 1. Carga inicial desde Firestore
     window._fbDoc.get().then(snap => {
-      if (snap.exists()) {
+      if (snap.exists) {
         const data = snap.data();
         const incoming = {
           tools: mergeTools(data.tools || []),
@@ -781,7 +781,7 @@ window.initFirebaseSync = function (config) {
 
     // 2. Listener en tiempo real (detecta cambios desde otro navegador)
     window._fbDoc.onSnapshot(snap => {
-      if (!snap.exists() || window._fbIgnoreNext) {
+      if (!snap.exists || window._fbIgnoreNext) {
         window._fbIgnoreNext = false;
         return;
       }
