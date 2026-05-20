@@ -665,6 +665,69 @@ searchInput.addEventListener('input', e => {
   renderResources();
 });
 
+// ===== EXPORT =====
+function exportData() {
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `ai-hub-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('btnExport').addEventListener('click', exportData);
+
+// ===== IMPORT =====
+document.getElementById('btnImport').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+
+document.getElementById('importFileInput').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  e.target.value = ''; // reset para permitir reimportar el mismo archivo
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.resources || !Array.isArray(parsed.resources)) {
+        alert('Archivo inválido: no se encontraron recursos.');
+        return;
+      }
+      const customTools = (parsed.tools || []).filter(t => !DEFAULT_TOOLS.find(d => d.id === t.id));
+      const msg =
+        `Archivo: "${file.name}"\n` +
+        `• ${parsed.resources.length} recursos\n` +
+        `• ${customTools.length} herramientas personalizadas\n\n` +
+        `¿Reemplazar todos los datos actuales con este archivo?`;
+      if (!confirm(msg)) return;
+
+      state = {
+        tools: mergeTools(parsed.tools || []),
+        resources: parsed.resources,
+      };
+      // Re-inyectar seeds si no están
+      SEED_RESOURCES.forEach(seed => {
+        if (!state.resources.find(r => r.id === seed.id)) {
+          state.resources.push({ ...seed });
+        }
+      });
+      saveState();
+      renderSidebar();
+      renderResources();
+      alert(`✓ Importación exitosa. Se cargaron ${state.resources.length} recursos.`);
+    } catch (_) {
+      alert('Error al leer el archivo. Usá un JSON exportado desde esta app.');
+    }
+  };
+  reader.readAsText(file);
+});
+
 // ===== INIT =====
 renderSidebar();
 renderResources();
