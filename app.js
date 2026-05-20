@@ -2,16 +2,17 @@
 const STATE_KEY = 'ai_hub_state';
 
 const DEFAULT_TOOLS = [
-  { id: 'chatgpt',        name: 'ChatGPT',           emoji: '🤖', color: '#10a37f' },
-  { id: 'claude',         name: 'Claude',            emoji: '🧠', color: '#c97a3e' },
-  { id: 'gemini',         name: 'Gemini',            emoji: '✨', color: '#4285f4' },
-  { id: 'midjourney',     name: 'Midjourney',        emoji: '🎨', color: '#eb459e' },
-  { id: 'stablediffusion',name: 'Stable Diffusion',  emoji: '🖼️', color: '#7c3aed' },
-  { id: 'dalle',          name: 'DALL·E',            emoji: '🌈', color: '#ff6b35' },
-  { id: 'copilot',        name: 'GitHub Copilot',    emoji: '🚀', color: '#6366f1' },
-  { id: 'suno',           name: 'Suno',              emoji: '🎵', color: '#f59e0b' },
-  { id: 'runway',         name: 'Runway',            emoji: '🎬', color: '#06b6d4' },
-  { id: 'perplexity',     name: 'Perplexity',        emoji: '🔎', color: '#8b5cf6' },
+  { id: 'chatgpt',        name: 'ChatGPT',           emoji: '🤖', color: '#10a37f', desc: 'Modelo de lenguaje de OpenAI para conversación, redacción, código y análisis.' },
+  { id: 'claude',         name: 'Claude',            emoji: '🧠', color: '#c97a3e', desc: 'Asistente IA de Anthropic, orientado a análisis profundo y documentos largos.' },
+  { id: 'gemini',         name: 'Gemini',            emoji: '✨', color: '#4285f4', desc: 'IA multimodal de Google, integrada con Drive, Docs y el ecosistema Google.' },
+  { id: 'midjourney',     name: 'Midjourney',        emoji: '🎨', color: '#eb459e', desc: 'Generador de imágenes por IA con estética artística de alta calidad.' },
+  { id: 'stablediffusion',name: 'Stable Diffusion',  emoji: '🖼️', color: '#7c3aed', desc: 'Modelo open-source para generación de imágenes, ejecutable de forma local.' },
+  { id: 'dalle',          name: 'DALL·E',            emoji: '🌈', color: '#ff6b35', desc: 'Generador de imágenes de OpenAI, integrado directamente con ChatGPT.' },
+  { id: 'copilot',        name: 'GitHub Copilot',    emoji: '🚀', color: '#6366f1', desc: 'Asistente de código IA integrado en el editor, potenciado por modelos de OpenAI.' },
+  { id: 'suno',           name: 'Suno',              emoji: '🎵', color: '#f59e0b', desc: 'Genera canciones completas con letra e instrumentación a partir de un prompt.' },
+  { id: 'runway',         name: 'Runway',            emoji: '🎬', color: '#06b6d4', desc: 'Suite de herramientas IA para generación y edición de video con IA.' },
+  { id: 'perplexity',     name: 'Perplexity',        emoji: '🔎', color: '#8b5cf6', desc: 'Motor de búsqueda con IA que responde con fuentes verificadas en tiempo real.' },
+  { id: 'notebooklm',     name: 'NotebookLM',        emoji: '📓', color: '#34a853', desc: 'Herramienta de Google para analizar, resumir y conversar con tus propios documentos.' },
 ];
 
 let state = loadState();
@@ -59,6 +60,7 @@ const viewDelete     = document.getElementById('viewDelete');
 let currentTool   = 'all';
 let currentFilter = 'all';
 let currentSearch = '';
+let currentTopic  = null;
 let viewingId     = null;
 
 // ===== LOAD / SAVE =====
@@ -150,6 +152,47 @@ function renderSidebar() {
     fldTool.appendChild(opt);
   });
   if (prevVal) fldTool.value = prevVal;
+
+  // Render topics
+  renderTopics();
+}
+
+// ===== RENDER TOPICS =====
+function renderTopics() {
+  const container = document.getElementById('topicsList');
+  if (!container) return;
+
+  // Gather all tags from resources filtered by current tool
+  let pool = currentTool === 'all'
+    ? state.resources
+    : state.resources.filter(r => r.toolId === currentTool);
+
+  const allTags = pool.flatMap(r => r.tags || []);
+  const counts = {};
+  allTags.forEach(t => { counts[t] = (counts[t] || 0) + 1; });
+  const topics = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+  container.innerHTML = '';
+  if (topics.length === 0) {
+    container.innerHTML = '<span class="no-topics">Sin temas aún</span>';
+    return;
+  }
+
+  topics.forEach(([tag, count]) => {
+    const pill = document.createElement('button');
+    pill.className = 'topic-pill' + (currentTopic === tag ? ' active' : '');
+    pill.textContent = `#${tag}`;
+    pill.title = `${count} recurso${count !== 1 ? 's' : ''}`;
+    pill.addEventListener('click', () => selectTopic(tag));
+    container.appendChild(pill);
+  });
+}
+
+// ===== SELECT TOPIC =====
+function selectTopic(tag) {
+  currentTopic = currentTopic === tag ? null : tag;
+  renderTopics();
+  renderResources();
 }
 
 // ===== SELECT TOOL =====
@@ -160,15 +203,18 @@ function selectTool(toolId) {
     el.classList.toggle('active', el.dataset.tool === toolId);
   });
 
+  currentTopic = null;
+
   if (toolId === 'all') {
     sectionTitle.textContent = 'Todos los recursos';
     sectionSubtitle.textContent = 'Explora todos los recursos guardados';
   } else {
     const tool = getTool(toolId);
     sectionTitle.textContent = `${tool.emoji} ${tool.name}`;
-    sectionSubtitle.textContent = `Recursos guardados para ${tool.name}`;
+    sectionSubtitle.textContent = tool.desc || `Recursos guardados para ${tool.name}`;
   }
 
+  renderTopics();
   renderResources();
 }
 
@@ -184,6 +230,11 @@ function renderResources() {
   // Filter by type
   if (currentFilter !== 'all') {
     list = list.filter(r => r.type === currentFilter);
+  }
+
+  // Filter by topic/hashtag
+  if (currentTopic) {
+    list = list.filter(r => (r.tags || []).includes(currentTopic));
   }
 
   // Filter by search
@@ -224,7 +275,7 @@ function renderResources() {
       : (resource.content || '');
 
     const tagsHtml = (resource.tags || []).length
-      ? `<div class="card-tags">${resource.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>`
+      ? `<div class="card-tags">${resource.tags.map(t => `<span class="tag hashtag" data-tag="${escapeHtml(t)}">#${escapeHtml(t)}</span>`).join('')}</div>`
       : '';
 
     const sourceHtml = resource.source
@@ -245,7 +296,15 @@ function renderResources() {
       ${tagsHtml}
     `;
 
-    card.addEventListener('click', () => openViewModal(resource.id));
+    card.addEventListener('click', e => {
+      const tagEl = e.target.closest('.hashtag');
+      if (tagEl) {
+        e.stopPropagation();
+        selectTopic(tagEl.dataset.tag);
+        return;
+      }
+      openViewModal(resource.id);
+    });
     resourcesGrid.appendChild(card);
   });
 }
@@ -300,8 +359,8 @@ function openViewModal(id) {
 
   if (r.tags && r.tags.length) {
     html += `<div class="view-section">
-      <div class="view-label">Etiquetas</div>
-      <div class="card-tags">${r.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="view-label">Temas</div>
+      <div class="card-tags">${r.tags.map(t => `<span class="tag hashtag">#${escapeHtml(t)}</span>`).join('')}</div>
     </div>`;
   }
 
