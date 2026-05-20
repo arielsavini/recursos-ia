@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resources Hub</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <span class="logo-icon">⚡</span>
+      <h1 class="logo-title">AI Resources Hub</h1>
+    </div>
+    <div class="header-right">
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="Buscar recursos..." class="search-input" />
+      </div>
+      <button class="btn-primary" id="btnAddResource">+ Agregar Recurso</button>
+      <button class="btn-secondary" id="btnAddTool">+ Nueva Herramienta</button>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-title">Herramientas IA</div>
+      <ul class="tool-list" id="toolList">
+        <li class="tool-item active" data-tool="all">
+          <span class="tool-emoji">🌐</span>
+          <span class="tool-name">Todos</span>
+          <span class="tool-count" id="count-all">0</span>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+      <div class="main-header">
+        <div>
+          <h2 class="section-title" id="sectionTitle">Todos los recursos</h2>
+          <p class="section-subtitle" id="sectionSubtitle">Explora todos los recursos guardados</p>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">Todos</button>
+          <button class="filter-tab" data-filter="webpage">🔗 Páginas</button>
+          <button class="filter-tab" data-filter="social">📱 Redes Sociales</button>
+          <button class="filter-tab" data-filter="text">📝 Textos</button>
+        </div>
+      </div>
+
+      <div class="resources-grid" id="resourcesGrid">
+        <!-- Resources cards will be rendered here -->
+      </div>
+
+      <div class="empty-state" id="emptyState" style="display:none;">
+        <div class="empty-icon">📂</div>
+        <p class="empty-text">No hay recursos aquí todavía.</p>
+        <p class="empty-sub">¡Agrega el primero!</p>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD RESOURCE -->
+  <div class="modal-overlay" id="modalResource" style="display:none;">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalResourceTitle">Agregar Recurso</h3>
+        <button class="modal-close" id="closeModalResource">✕</button>
+      </div>
+      <form id="resourceForm" class="modal-body">
+        <input type="hidden" id="resourceId" />
+
+        <div class="form-group">
+          <label>Herramienta IA</label>
+          <select id="resourceTool" required>
+            <option value="">— Selecciona una herramienta —</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tipo de recurso</label>
+          <div class="type-selector" id="typeSelector">
+            <button type="button" class="type-btn active" data-type="webpage">🔗 Página Web</button>
+            <button type="button" class="type-btn" data-type="social">📱 Red Social</button>
+            <button type="button" class="type-btn" data-type="text">📝 Texto</button>
+          </div>
+          <input type="hidden" id="resourceType" value="webpage" />
+        </div>
+
+        <div class="form-group">
+          <label>Título</label>
+          <input type="text" id="resourceTitle" placeholder="Ej: Guía de prompts para ChatGPT" required />
+        </div>
+
+        <div class="form-group" id="contentGroup">
+          <label id="contentLabel">URL</label>
+          <input type="text" id="resourceContent" placeholder="https://..." />
+        </div>
+
+        <div class="form-group" id="bodyGroup" style="display:none;">
+          <label>Contenido</label>
+          <textarea id="resourceBody" rows="5" placeholder="Pega aquí el texto, post o descripción..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Fuente / Autor (opcional)</label>
+          <input type="text" id="resourceSource" placeholder="Ej: @usuario, blog.com, nombre del autor" />
+        </div>
+
+        <div class="form-group">
+          <label>Notas personales (opcional)</label>
+          <textarea id="resourceNotes" rows="3" placeholder="Agrega notas o comentarios..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Etiquetas (separadas por coma)</label>
+          <input type="text" id="resourceTags" placeholder="Ej: prompts, tutorial, avanzado" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" id="cancelResource">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar Recurso</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD TOOL -->
+  <div class="modal-overlay" id="modalTool" style="display:none;">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Nueva Herramienta IA</h3>
+        <button class="modal-close" id="closeModalTool">✕</button>
+      </div>
+      <form id="toolForm" class="modal-body">
+        <div class="form-group">
+          <label>Nombre</label>
+          <input type="text" id="toolName" placeholder="Ej: ChatGPT, Midjourney..." required />
+        </div>
+        <div class="form-group">
+          <label>Emoji / Ícono</label>
+          <input type="text" id="toolEmoji" placeholder="🤖" maxlength="2" required />
+        </div>
+        <div class="form-group">
+          <label>Color de acento</label>
+          <input type="color" id="toolColor" value="#6366f1" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" id="cancelTool">Cancelar</button>
+          <button type="submit" class="btn-primary">Crear Herramienta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: VIEW RESOURCE -->
+  <div class="modal-overlay" id="modalView" style="display:none;">
+    <div class="modal modal-lg">
+      <div class="modal-header">
+        <h3 id="viewTitle">—</h3>
+        <button class="modal-close" id="closeModalView">✕</button>
+      </div>
+      <div class="modal-body" id="viewBody">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="viewEdit">✏️ Editar</button>
+        <button class="btn-danger" id="viewDelete">🗑️ Eliminar</button>
+        <button class="btn-primary" id="closeViewBtn">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
