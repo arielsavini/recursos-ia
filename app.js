@@ -757,20 +757,31 @@ window.initFirebaseSync = function (config) {
     window._fbDoc.get().then(snap => {
       if (snap.exists) {
         const data = snap.data();
-        const incoming = {
-          tools: mergeTools(data.tools || []),
-          resources: data.resources || [],
-        };
+        const remoteResources = data.resources || [];
+        const localResources  = state.resources || [];
+
+        // Merge: combina ambos por ID, sin duplicados
+        const merged = [...remoteResources];
+        localResources.forEach(r => {
+          if (!merged.find(x => x.id === r.id)) merged.push(r);
+        });
+        const mergedTools = mergeTools(data.tools || []);
+
+        const incoming = { tools: mergedTools, resources: merged };
         SEED_RESOURCES.forEach(seed => {
           if (!incoming.resources.find(r => r.id === seed.id)) {
             incoming.resources.push({ ...seed });
           }
         });
+
         state = incoming;
+        // Sube el merge a Firestore si el local tenía recursos nuevos
+        window._fbDoc.set(state).then(() => {
+          console.log(`Firebase: sincronizado (${state.resources.length} recursos) ✓`);
+        });
         localStorage.setItem(STATE_KEY, JSON.stringify(state));
         renderSidebar();
         renderResources();
-        console.log('Firebase: datos cargados desde Firestore ✓');
       } else {
         // Primera vez: sube el estado local a Firestore
         window._fbDoc.set(state).then(() => {
