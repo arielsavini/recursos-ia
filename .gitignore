@@ -1,0 +1,3 @@
+# Firebase config — contiene API keys, NO subir al repo
+# Para desarrollo local: copiá firebase-config.example.js → firebase-config.js y completá
+firebase-config.js
