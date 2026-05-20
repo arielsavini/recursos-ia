@@ -13,6 +13,7 @@ const DEFAULT_TOOLS = [
   { id: 'runway',         name: 'Runway',            emoji: '🎬', color: '#06b6d4', desc: 'Suite de herramientas IA para generación y edición de video con IA.' },
   { id: 'perplexity',     name: 'Perplexity',        emoji: '🔎', color: '#8b5cf6', desc: 'Motor de búsqueda con IA que responde con fuentes verificadas en tiempo real.' },
   { id: 'notebooklm',     name: 'NotebookLM',        emoji: '📓', color: '#34a853', desc: 'Herramienta de Google para analizar, resumir y conversar con tus propios documentos.' },
+  { id: 'educacion',      name: 'Educación',         emoji: '🎓', color: '#0ea5e9', desc: 'Recursos educativos sobre IA: cursos, tutoriales, guías y materiales de aprendizaje.' },
 ];
 
 // ===== SEED RESOURCES =====
@@ -93,7 +94,7 @@ function loadState() {
         }
       });
       return {
-        tools: parsed.tools || [...DEFAULT_TOOLS],
+        tools: mergeTools(parsed.tools || []),
         resources,
       };
     }
@@ -103,6 +104,17 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STATE_KEY, JSON.stringify(state));
+}
+
+// Ensures DEFAULT_TOOLS not yet in stored tools are added
+function mergeTools(stored) {
+  const result = [...stored];
+  DEFAULT_TOOLS.forEach(def => {
+    if (!result.find(t => t.id === def.id)) {
+      result.push(def);
+    }
+  });
+  return result;
 }
 
 // ===== HELPERS =====
