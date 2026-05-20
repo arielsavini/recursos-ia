@@ -63,19 +63,42 @@ let currentSearch = '';
 let currentTopic  = null;
 let viewingId     = null;
 
+// ===== SEED RESOURCES =====
+const SEED_RESOURCES = [
+  {
+    id: 'seed_notebooklm_local_01',
+    toolId: 'notebooklm',
+    type: 'webpage',
+    title: 'Nuevo Documento de texto',
+    content: 'file:///C:/Users/Usuario/Desktop/Nuevo%20Documento%20de%20texto.html',
+    body: '',
+    source: 'Local – Desktop',
+    notes: '',
+    tags: ['local', 'documento'],
+    createdAt: new Date().toISOString(),
+  },
+];
+
 // ===== LOAD / SAVE =====
 function loadState() {
   try {
     const raw = localStorage.getItem(STATE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
+      const resources = parsed.resources || [];
+      // Inject seed resources if not present
+      SEED_RESOURCES.forEach(seed => {
+        if (!resources.find(r => r.id === seed.id)) {
+          resources.push({ ...seed, createdAt: new Date().toISOString() });
+        }
+      });
       return {
         tools: parsed.tools || [...DEFAULT_TOOLS],
-        resources: parsed.resources || [],
+        resources,
       };
     }
   } catch (_) {}
-  return { tools: [...DEFAULT_TOOLS], resources: [] };
+  return { tools: [...DEFAULT_TOOLS], resources: [...SEED_RESOURCES] };
 }
 
 function saveState() {
