@@ -708,4 +708,60 @@ body {
   .header .btn-secondary { display: none; }
   .main-header { flex-direction: column; align-items: flex-start; }
   .resources-grid { grid-template-columns: 1fr; }
+  .auth-name { display: none; }
+}
+
+/* ===== AUTH AREA ===== */
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 4px;
+  flex-shrink: 0;
+}
+
+.auth-btn {
+  font-size: 13px;
+  padding: 6px 12px;
+  white-space: nowrap;
+}
+
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent);
+  flex-shrink: 0;
+}
+
+.auth-name {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.auth-readonly {
+  font-size: 12px;
+  color: var(--text-dim);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+#adminButtons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

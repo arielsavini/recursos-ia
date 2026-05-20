@@ -738,12 +738,64 @@ document.getElementById('importFileInput').addEventListener('change', e => {
   reader.readAsText(file);
 });
 
+// ===== AUTH UI =====
+const ADMIN_EMAIL = 'arielsavini@gmail.com';
+
+function renderAuthUI() {
+  const area = document.getElementById('authArea');
+  if (!area) return;
+
+  if (window._isAdmin) {
+    const user   = window._currentUser;
+    const name   = escapeHtml(user.displayName || user.email);
+    const avatar = user.photoURL
+      ? `<img class="auth-avatar" src="${escapeHtml(user.photoURL)}" alt="" />`
+      : '';
+    area.innerHTML = `
+      <span class="auth-user">${avatar}<span class="auth-name">${name}</span></span>
+      <button class="btn-ghost auth-btn" id="btnSignOut">Salir</button>
+    `;
+    document.getElementById('btnSignOut').addEventListener('click',
+      () => window._fbAuth && window._fbAuth.signOut());
+
+  } else if (window._currentUser) {
+    // Logueado pero no es admin
+    area.innerHTML = `
+      <span class="auth-readonly">Solo lectura</span>
+      <button class="btn-ghost auth-btn" id="btnSignOut">Salir</button>
+    `;
+    document.getElementById('btnSignOut').addEventListener('click',
+      () => window._fbAuth && window._fbAuth.signOut());
+
+  } else {
+    area.innerHTML = `<button class="btn-ghost auth-btn" id="btnSignIn">🔐 Acceder</button>`;
+    document.getElementById('btnSignIn').addEventListener('click', () => {
+      if (!window._fbAuth || !window.firebase) return;
+      const provider = new firebase.auth.GoogleAuthProvider();
+      provider.setCustomParameters({ login_hint: ADMIN_EMAIL });
+      window._fbAuth.signInWithPopup(provider)
+        .catch(err => { console.warn('Sign-in error:', err); alert('Error al iniciar sesión. Intentá de nuevo.'); });
+    });
+  }
+}
+
+function updateAdminUI() {
+  const adminEl = document.getElementById('adminButtons');
+  if (adminEl) adminEl.style.display = window._isAdmin ? 'flex' : 'none';
+  if (viewEdit)   viewEdit.style.display   = window._isAdmin ? '' : 'none';
+  if (viewDelete) viewDelete.style.display = window._isAdmin ? '' : 'none';
+}
+
 // ===== INIT =====
 renderSidebar();
 renderResources();
+renderAuthUI(); // muestra botón Acceder desde el inicio
 
 // ===== FIREBASE SYNC =====
-window._fbDoc = null;
+window._fbDoc        = null;
+window._fbAuth       = null;
+window._currentUser  = null;
+window._isAdmin      = false;
 window._fbIgnoreNext = false; // evita loop: propio save → onSnapshot → re-render
 
 window.initFirebaseSync = function (config) {
@@ -815,6 +867,16 @@ window.initFirebaseSync = function (config) {
       renderResources();
       console.log('Firebase: estado actualizado desde otro navegador ✓');
     }, err => console.warn('Firebase listener error:', err));
+
+    // 3. Auth — Google Sign-In
+    const auth = firebase.auth();
+    window._fbAuth = auth;
+    auth.onAuthStateChanged(user => {
+      window._currentUser = user;
+      window._isAdmin     = !!(user && user.email === ADMIN_EMAIL);
+      renderAuthUI();
+      updateAdminUI();
+    });
 
   } catch (err) {
     console.warn('Firebase init error:', err);

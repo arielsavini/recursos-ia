@@ -19,11 +19,14 @@
         <span class="search-icon">🔍</span>
         <input type="text" id="searchInput" placeholder="Buscar recursos..." class="search-input" />
       </div>
-      <button class="btn-primary" id="btnAddResource">+ Agregar Recurso</button>
-      <button class="btn-secondary" id="btnAddTool">+ Nueva Herramienta</button>
-      <button class="btn-secondary" id="btnExport" title="Exportar todos los datos como JSON">📤 Exportar</button>
-      <button class="btn-secondary" id="btnImport" title="Importar datos desde un archivo JSON">📥 Importar</button>
-      <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;" />
+      <div id="adminButtons" style="display:none;">
+        <button class="btn-primary" id="btnAddResource">+ Agregar Recurso</button>
+        <button class="btn-secondary" id="btnAddTool">+ Nueva Herramienta</button>
+        <button class="btn-secondary" id="btnExport" title="Exportar todos los datos como JSON">📤 Exportar</button>
+        <button class="btn-secondary" id="btnImport" title="Importar datos desde un archivo JSON">📥 Importar</button>
+        <input type="file" id="importFileInput" accept=".json,application/json" style="display:none;" />
+      </div>
+      <div id="authArea" class="auth-area"></div>
     </div>
   </header>
 
@@ -182,8 +185,8 @@
       <div class="modal-body" id="viewBody">
       </div>
       <div class="modal-footer">
-        <button class="btn-ghost" id="viewEdit">✏️ Editar</button>
-        <button class="btn-danger" id="viewDelete">🗑️ Eliminar</button>
+        <button class="btn-ghost" id="viewEdit" style="display:none;">✏️ Editar</button>
+        <button class="btn-danger" id="viewDelete" style="display:none;">🗑️ Eliminar</button>
         <button class="btn-primary" id="closeViewBtn">Cerrar</button>
       </div>
     </div>
@@ -192,6 +195,7 @@
   <!-- Firebase SDK (compat v10) -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 
   <script src="app.js"></script>
 
