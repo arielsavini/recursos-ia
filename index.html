@@ -60,6 +60,7 @@
           <button class="filter-tab" data-filter="social">📱 Redes Sociales</button>
           <button class="filter-tab" data-filter="text">📝 Textos</button>
           <button class="filter-tab" data-filter="image">🖼️ Imágenes</button>
+          <button class="filter-tab" data-filter="pdf">📄 PDFs</button>
         </div>
       </div>
 
@@ -97,6 +98,7 @@
             <button type="button" class="type-btn" data-type="social">📱 Red Social</button>
             <button type="button" class="type-btn" data-type="text">📝 Texto</button>
             <button type="button" class="type-btn" data-type="image">🖼️ Imagen</button>
+            <button type="button" class="type-btn" data-type="pdf">📄 PDF</button>
           </div>
           <input type="hidden" id="resourceType" value="webpage" />
         </div>
@@ -123,7 +125,13 @@
             <img id="imagePreviewImg" src="" alt="Vista previa" />
           </div>
         </div>
-
+        <div class="form-group" id="pdfGroup" style="display:none;">
+          <label>Subir PDF <span class="label-hint">(máx ~2 MB recomendado · se guarda en el navegador)</span></label>
+          <input type="file" id="resourcePdfFile" accept=".pdf,application/pdf" class="file-input" />
+          <div id="pdfPreview" class="pdf-preview" style="display:none;">
+            📄 <span id="pdfPreviewName"></span>
+          </div>
+        </div>
         <div class="form-group">
           <label>Fuente / Autor (opcional)</label>
           <input type="text" id="resourceSource" placeholder="Ej: @usuario, blog.com, nombre del autor" />

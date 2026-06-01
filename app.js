@@ -79,6 +79,8 @@ let currentSearch    = '';
 let currentTopic     = null;
 let viewingId        = null;
 let pendingImageData = null;
+let pendingPdfData   = null;
+let pendingPdfName   = null;
 
 // ===== LOAD / SAVE =====
 function loadState() {
@@ -147,7 +149,7 @@ function isUrl(str) {
 }
 
 function getTypeBadge(type) {
-  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto', image: '🖼️ Imagen' };
+  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto', image: '🖼️ Imagen', pdf: '📄 PDF' };
   return map[type] || type;
 }
 
@@ -329,14 +331,21 @@ function renderResources() {
     card.style.setProperty('--card-color', firstTool ? firstTool.color : '#6366f1');
 
     const isImage = resource.type === 'image';
+    const isPdf   = resource.type === 'pdf';
     const displayContent = resource.type === 'text'
       ? (resource.body || '').slice(0, 120)
       : isImage
         ? (isUrl(resource.content || '') ? resource.content : '')
-        : (resource.content || '');
+        : isPdf
+          ? (resource.pdfName || (isUrl(resource.content || '') ? resource.content : ''))
+          : (resource.content || '');
 
     const imageHtml = isImage && resource.content
       ? `<div class="card-image"><img src="${escapeHtml(resource.content)}" alt="${escapeHtml(resource.title)}" loading="lazy" /></div>`
+      : '';
+
+    const pdfHtml = isPdf
+      ? `<div class="card-pdf-icon">📄</div>`
       : '';
 
     const tagsHtml = (resource.tags || []).length
@@ -357,7 +366,9 @@ function renderResources() {
       </div>
       <div class="card-title">${escapeHtml(resource.title)}</div>
       ${imageHtml}
-      ${!isImage && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
+      ${pdfHtml}
+      ${!isImage && !isPdf && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
+      ${isPdf && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
       ${sourceHtml}
       ${tagsHtml}
     `;
@@ -403,6 +414,16 @@ function openViewModal(id) {
         <div class="view-content"><a class="view-link" href="${escapeHtml(r.content)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.content)}</a></div>
       </div>`;
     }
+  } else if (r.type === 'pdf' && r.content) {
+    const pdfSrc = escapeHtml(r.content);
+    const pdfFilename = escapeHtml(r.pdfName || 'documento.pdf');
+    html += `<div class="view-section">
+      <div class="view-label">Documento PDF</div>
+      <div class="pdf-embed-container">
+        <embed class="pdf-embed" src="${pdfSrc}" type="application/pdf" />
+      </div>
+      <a class="pdf-download-btn" href="${pdfSrc}" download="${pdfFilename}">⬇ Descargar ${pdfFilename}</a>
+    </div>`;
   } else if (r.type !== 'text' && r.content) {
     html += `<div class="view-section">
       <div class="view-label">${r.type === 'webpage' ? 'URL / Enlace' : 'Enlace / Referencia'}</div>
@@ -462,6 +483,12 @@ function openResourceModal(id = null) {
   pendingImageData = null;
   document.getElementById('imagePreview').style.display = 'none';
   document.getElementById('imagePreviewImg').src = '';
+  // Reset PDF state
+  pendingPdfData = null;
+  pendingPdfName = null;
+  document.getElementById('pdfPreview').style.display = 'none';
+  document.getElementById('pdfPreviewName').textContent = '';
+  document.getElementById('resourcePdfFile').value = '';
   updateTypeUI('webpage');
 
   if (id) {
@@ -484,6 +511,11 @@ function openResourceModal(id = null) {
       document.getElementById('imagePreviewImg').src = r.content;
       document.getElementById('imagePreview').style.display = 'block';
     }
+    // Show existing PDF preview
+    if (r.type === 'pdf' && r.pdfName) {
+      document.getElementById('pdfPreviewName').textContent = r.pdfName;
+      document.getElementById('pdfPreview').style.display = 'block';
+    }
   } else {
     modalResTitle.textContent = 'Agregar Recurso';
     renderToolPicker(currentTool !== 'all' ? [currentTool] : []);
@@ -496,7 +528,9 @@ function openResourceModal(id = null) {
 // ===== TYPE UI =====
 function updateTypeUI(type) {
   const imageGroup = document.getElementById('imageGroup');
+  const pdfGroup   = document.getElementById('pdfGroup');
   imageGroup.style.display = type === 'image' ? 'flex' : 'none';
+  pdfGroup.style.display   = type === 'pdf'   ? 'flex' : 'none';
 
   if (type === 'text') {
     contentGroup.style.display = 'none';
@@ -504,6 +538,10 @@ function updateTypeUI(type) {
   } else if (type === 'image') {
     contentGroup.style.display = 'flex';
     contentLabel.textContent = 'URL de la imagen (opcional si subís archivo)';
+    bodyGroup.style.display = 'none';
+  } else if (type === 'pdf') {
+    contentGroup.style.display = 'flex';
+    contentLabel.textContent = 'URL del PDF (opcional si subís archivo)';
     bodyGroup.style.display = 'none';
   } else {
     contentGroup.style.display = 'flex';
@@ -527,7 +565,9 @@ resourceForm.addEventListener('submit', e => {
 
   const resolvedContent = fldType.value === 'image' && pendingImageData
     ? pendingImageData
-    : fldContent.value.trim();
+    : fldType.value === 'pdf' && pendingPdfData
+      ? pendingPdfData
+      : fldContent.value.trim();
 
   const data = {
     toolIds:   selectedToolIds,
@@ -538,6 +578,7 @@ resourceForm.addEventListener('submit', e => {
     source:    fldSource.value.trim(),
     notes:     fldNotes.value.trim(),
     tags,
+    ...(fldType.value === 'pdf' ? { pdfName: pendingPdfData ? pendingPdfName : undefined } : {}),
   };
 
   if (selectedToolIds.length === 0) { alert('Por favor seleccioná al menos una herramienta IA.'); return; }
@@ -653,6 +694,20 @@ document.getElementById('resourceImageFile').addEventListener('change', e => {
     const img    = document.getElementById('imagePreviewImg');
     img.src = pendingImageData;
     preview.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+});
+
+// ===== PDF UPLOAD =====
+document.getElementById('resourcePdfFile').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) { pendingPdfData = null; pendingPdfName = null; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingPdfData = ev.target.result;
+    pendingPdfName = file.name;
+    document.getElementById('pdfPreviewName').textContent = file.name;
+    document.getElementById('pdfPreview').style.display = 'block';
   };
   reader.readAsDataURL(file);
 });
