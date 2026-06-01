@@ -148,8 +148,22 @@ function isUrl(str) {
   return /^https?:\/\//i.test(str.trim());
 }
 
+function getYouTubeId(url) {
+  const patterns = [
+    /youtube\.com\/watch\?(?:[^&]*&)*v=([^&\s]+)/,
+    /youtu\.be\/([^?\s]+)/,
+    /youtube\.com\/embed\/([^?\s]+)/,
+    /youtube\.com\/shorts\/([^?\s]+)/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
 function getTypeBadge(type) {
-  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto', image: '🖼️ Imagen', pdf: '📄 PDF' };
+  const map = { webpage: '🔗 Página', social: '📱 Red Social', text: '📝 Texto', image: '🖼️ Imagen', pdf: '📄 PDF', video: '▶️ Video' };
   return map[type] || type;
 }
 
@@ -332,6 +346,8 @@ function renderResources() {
 
     const isImage = resource.type === 'image';
     const isPdf   = resource.type === 'pdf';
+    const isVideo = resource.type === 'video';
+    const ytId    = isVideo ? getYouTubeId(resource.content || '') : null;
     const displayContent = resource.type === 'text'
       ? (resource.body || '').slice(0, 120)
       : isImage
@@ -346,6 +362,10 @@ function renderResources() {
 
     const pdfHtml = isPdf
       ? `<div class="card-pdf-icon">📄</div>`
+      : '';
+
+    const videoHtml = isVideo
+      ? `<div class="card-video">${ytId ? `<img src="https://img.youtube.com/vi/${encodeURIComponent(ytId)}/mqdefault.jpg" alt="${escapeHtml(resource.title)}" loading="lazy" />` : ''}<div class="card-video-play">▶</div></div>`
       : '';
 
     const tagsHtml = (resource.tags || []).length
@@ -367,7 +387,8 @@ function renderResources() {
       <div class="card-title">${escapeHtml(resource.title)}</div>
       ${imageHtml}
       ${pdfHtml}
-      ${!isImage && !isPdf && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
+      ${videoHtml}
+      ${!isImage && !isPdf && !isVideo && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
       ${isPdf && displayContent ? `<div class="card-content">${escapeHtml(displayContent)}</div>` : ''}
       ${sourceHtml}
       ${tagsHtml}
@@ -424,6 +445,22 @@ function openViewModal(id) {
       </div>
       <a class="pdf-download-btn" href="${pdfSrc}" download="${pdfFilename}">⬇ Descargar ${pdfFilename}</a>
     </div>`;
+  } else if (r.type === 'video' && r.content) {
+    const vtId = getYouTubeId(r.content);
+    if (vtId) {
+      html += `<div class="view-section">
+        <div class="view-label">Video de YouTube</div>
+        <div class="video-embed-container">
+          <iframe class="video-embed" src="https://www.youtube.com/embed/${encodeURIComponent(vtId)}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>
+        <div style="margin-top:8px;"><a class="view-link" href="${escapeHtml(r.content)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.content)}</a></div>
+      </div>`;
+    } else {
+      html += `<div class="view-section">
+        <div class="view-label">URL del video</div>
+        <div class="view-content"><a class="view-link" href="${escapeHtml(r.content)}" target="_blank" rel="noopener noreferrer">${escapeHtml(r.content)}</a></div>
+      </div>`;
+    }
   } else if (r.type !== 'text' && r.content) {
     html += `<div class="view-section">
       <div class="view-label">${r.type === 'webpage' ? 'URL / Enlace' : 'Enlace / Referencia'}</div>
@@ -542,6 +579,10 @@ function updateTypeUI(type) {
   } else if (type === 'pdf') {
     contentGroup.style.display = 'flex';
     contentLabel.textContent = 'URL del PDF (opcional si subís archivo)';
+    bodyGroup.style.display = 'none';
+  } else if (type === 'video') {
+    contentGroup.style.display = 'flex';
+    contentLabel.textContent = 'URL del video de YouTube';
     bodyGroup.style.display = 'none';
   } else {
     contentGroup.style.display = 'flex';

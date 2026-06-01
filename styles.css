@@ -330,6 +330,7 @@ body {
 .badge-text { background: rgba(34,197,94,0.12); color: #16a34a; border-color: rgba(34,197,94,0.25); }
 .badge-image { background: rgba(245,158,11,0.12); color: #d97706; border-color: rgba(245,158,11,0.25); }
 .badge-pdf   { background: rgba(220,38,38,0.10);  color: #dc2626; border-color: rgba(220,38,38,0.25); }
+.badge-video { background: rgba(239,68,68,0.12);  color: #dc2626; border-color: rgba(239,68,68,0.30); }
 
 /* ===== CARD IMAGE ===== */
 .card-image {
@@ -351,6 +352,35 @@ body {
   text-align: center;
   padding: 10px 0 4px;
   opacity: 0.85;
+}
+
+/* ===== CARD VIDEO ===== */
+.card-video {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 4px 0;
+  position: relative;
+  background: #000;
+  aspect-ratio: 16/9;
+}
+.card-video img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.85;
+}
+.card-video-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+  pointer-events: none;
 }
 
 /* ===== FILE INPUT ===== */
@@ -407,6 +437,23 @@ body {
   font-size: 13px;
   color: #dc2626;
   font-weight: 500;
+}
+
+/* ===== VIDEO EMBED (view modal) ===== */
+.video-embed-container {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #000;
+  margin-top: 8px;
+  aspect-ratio: 16/9;
+}
+.video-embed {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border: none;
 }
 
 /* ===== PDF EMBED (view modal) ===== */
