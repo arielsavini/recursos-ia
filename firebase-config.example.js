@@ -1,5 +1,5 @@
-// Copiá este archivo como firebase-config.js y completá con tus datos
-// Obtenelos en: https://console.firebase.google.com → Tu proyecto → Project Settings → Web apps
+// Copi� este archivo como firebase-config.js y complet� con tus datos
+// Obtenelos en: https://console.firebase.google.com ? Tu proyecto ? Project Settings ? Web apps
 window.initFirebaseSync({
   apiKey:            "TU_API_KEY",
   authDomain:        "TU_PROYECTO.firebaseapp.com",
@@ -8,3 +8,4 @@ window.initFirebaseSync({
   messagingSenderId: "TU_SENDER_ID",
   appId:             "TU_APP_ID"
 });
+
