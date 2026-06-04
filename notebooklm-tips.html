@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotebookLM Tips - Colores claros</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f4fa;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 1.8rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 2rem;
+            padding: 1.5rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03), 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            background: #ffffff;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        .numero {
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            background: #eef2ff;
+            display: inline-block;
+            padding: 0.2rem 0.8rem;
+            border-radius: 40px;
+            color: #2c3e66;
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a2c3e;
+            line-height: 1.3;
+        }
+
+        .contenido {
+            color: #2c3e4e;
+            font-size: 1rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        .prompt {
+            background: #f8fafc;
+            border-left: 4px solid #8aacd4;
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            color: #1e3a5f;
+            margin: 0.8rem 0;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #e9f3e6;
+            color: #2d5a2c;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 30px;
+            margin-top: 0.5rem;
+        }
+
+        hr {
+            margin: 1rem 0;
+            border: 0;
+            height: 1px;
+            background: #e2e8f0;
+        }
+
+        .footer-note {
+            font-size: 0.75rem;
+            color: #6c86a3;
+            margin-top: 1rem;
+            text-align: right;
+        }
+    </style>
+</head>
+<body>
+<div class="grid">
+    <!-- 1 -->
+    <div class="card">
+        <div class="numero">#1</div>
+        <h2>📌 Convierte reuniones en tareas claras</h2>
+        <div class="contenido">
+            Sube la transcripción de una reunión, clase o llamada.
+        </div>
+        <div class="prompt">
+            ✍️ “Convierte esto en un plan de acción con 4 columnas: tarea, responsable, fecha límite y prioridad.”
+        </div>
+        <div>✅ Sal de una reunión sabiendo exactamente qué hacer, quién lo hará y cuándo.</div>
+    </div>
+
+    <!-- 2 -->
+    <div class="card">
+        <div class="numero">#2</div>
+        <h2>📖 Explica documentos difíciles en palabras simples</h2>
+        <div class="contenido">
+            Sube un informe, paper, contrato o texto técnico.
+        </div>
+        <div class="prompt">
+            ✍️ “Explícame esto como si yo no fuera experto. Usa ejemplos simples y lenguaje cotidiano.”
+        </div>
+        <div>✅ Ideal para entender rápido temas complejos sin perder tiempo.</div>
+    </div>
+
+    <!-- 3 -->
+    <div class="card">
+        <div class="numero">#3</div>
+        <h2>🎥 Transforma videos largos en resúmenes que aprovechas</h2>
+        <div class="contenido">
+            Pega una URL de YouTube o sube material de estudio. Usa Audio Overview o pide resumen directo.
+        </div>
+        <div class="prompt">
+            ✍️ “Resume este contenido en 5 ideas clave y dame 3 acciones concretas que pueda aplicar hoy.”
+        </div>
+        <div class="badge">notebooklm.google</div>
+    </div>
+
+    <!-- 4 -->
+    <div class="card">
+        <div class="numero">#4</div>
+        <h2>📚 Apuntes o clases → preguntas para estudiar mejor</h2>
+        <div class="contenido">
+            Sube tus apuntes, PDFs o transcripciones.
+        </div>
+        <div class="prompt">
+            ✍️ “No me des las respuestas todavía. Hazme 10 preguntas tipo quiz, de fácil a difícil, para comprobar si entendí.”
+        </div>
+        <div>✅ Autoevaluación efectiva.</div>
+    </div>
+
+    <!-- 5 -->
+    <div class="card">
+        <div class="numero">#5</div>
+        <h2>🔍 Cruza dos documentos y encuentra relaciones ocultas</h2>
+        <div class="contenido">
+            Sube dos o más fuentes: informe, Excel, reporte, manual…
+        </div>
+        <div class="prompt">
+            ✍️ “Compara estas fuentes y detecta diferencias, contradicciones, patrones y oportunidades ocultas.”
+        </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="card">
+        <div class="numero">#6</div>
+        <h2>🧠 Usa NotebookLM como asesor crítico de tus ideas</h2>
+        <div class="contenido">
+            Sube una propuesta, plan, presentación o borrador.
+        </div>
+        <div class="prompt">
+            ✍️ “Actúa como alguien escéptico. Dime los 5 puntos débiles, riesgos o vacíos más importantes de esta idea.”
+        </div>
+        <div>✅ Evita errores antes de presentar o tomar decisiones.</div>
+    </div>
+
+    <!-- 7 -->
+    <div class="card">
+        <div class="numero">#7</div>
+        <h2>✍️ Crea contenido nuevo usando TU propio estilo</h2>
+        <div class="contenido">
+            Sube 3 a 5 textos tuyos que representen bien cómo escribes.
+        </div>
+        <div class="prompt">
+            ✍️ “Escribe un nuevo texto sobre este tema usando mi tono, mi estructura y mi nivel de claridad, sin copiar frases exactas.”
+        </div>
+        <div>✅ Ideal para posts, correos, ideas de contenido, mensajes profesionales.</div>
+    </div>
+
+    <!-- 8 -->
+    <div class="card">
+        <div class="numero">#8</div>
+        <h2>⚙️ Pide código o soluciones usando solo tu documentación</h2>
+        <div class="contenido">
+            Sube la documentación exacta de una herramienta, API o proceso.
+        </div>
+        <div class="prompt">
+            ✍️ “Genera una solución basada solo en estas fuentes. Si falta información, dímelo en vez de inventar.”
+        </div>
+        <div>✅ Para empresas, equipos, asistentes o integraciones.</div>
+    </div>
+
+    <!-- 9 -->
+    <div class="card">
+        <div class="numero">#9</div>
+        <h2>🚀 Onboarding rápido de personas nuevas</h2>
+        <div class="contenido">
+            Sube SOPs, manuales, cultura interna, FAQs, procesos.
+        </div>
+        <div class="prompt">
+            ✍️ “Crea una guía de inicio rápido para una persona nueva. Luego responde dudas usando solo estas fuentes.”
+        </div>
+        <div>✅ Empresas, equipos, asistentes virtuales, nuevos miembros.</div>
+    </div>
+
+    <!-- 10 -->
+    <div class="card">
+        <div class="numero">#10</div>
+        <h2>🌎 Traduce sin sonar robótico ni literal</h2>
+        <div class="contenido">
+            Sube contenido en otro idioma.
+        </div>
+        <div class="prompt">
+            ✍️ “Traduce esto al español natural. Prioriza claridad, contexto y sentido, no traducción palabra por palabra.”
+        </div>
+        <div>✅ Traducciones fluidas y con sentido real.</div>
+    </div>
+
+    <!-- 11 -->
+    <div class="card">
+        <div class="numero">#11</div>
+        <h2>🎙️ Convierte audios o ideas habladas en contenido útil</h2>
+        <div class="contenido">
+            Usa Audio Overview, o sube transcripciones de voz.
+        </div>
+        <div class="prompt">
+            ✍️ “Ordena estas ideas, elimina repeticiones y conviértelas en un texto claro.”
+        </div>
+        <div>✅ Transforma ideas sueltas en posts, informes, guiones o planes.</div>
+    </div>
+
+    <!-- 12 -->
+    <div class="card">
+        <div class="numero">#12</div>
+        <h2>🎯 Extra: Idea extraída del flujo original</h2>
+        <div class="contenido">
+            También puedes combinar varios métodos: crítica + traducción + resumen.
+        </div>
+        <div class="prompt">
+            ✍️ Ejemplo: “Actúa como editor, mejora la claridad de este texto manteniendo mi tono personal.”
+        </div>
+        <div class="footer-note">NotebookLM · versión con colores claros</div>
+    </div>
+</div>
+</body>
+</html>

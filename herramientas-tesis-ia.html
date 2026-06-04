@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herramientas de IA para Tesis e Investigación Académica</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:           #f0f4fa;
+      --surface:      #ffffff;
+      --border:       #e2e5f0;
+      --border-light: #c8cde0;
+      --text:         #1a1d2e;
+      --text-muted:   #5c6480;
+      --text-dim:     #9aa0bc;
+      --radius:       14px;
+      --radius-sm:    9px;
+      --shadow:       0 4px 24px rgba(99,102,241,0.09);
+      --shadow-sm:    0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #13161f;
+        --surface:      #1a1d2e;
+        --border:       #2c2f45;
+        --border-light: #3a3f5c;
+        --text:         #e8eaf6;
+        --text-muted:   #9aa0bc;
+        --text-dim:     #5c6480;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1.5rem 3rem;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page-wrapper { max-width: 860px; margin: 0 auto; }
+
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(135deg, #1a237e 0%, #283593 50%, #1565c0 100%);
+      border-radius: var(--radius);
+      padding: 2.25rem 2rem;
+      margin-bottom: 2rem;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; top: -30px; right: -30px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; font-size: 12px; font-weight: 600;
+      padding: 5px 14px; border-radius: 99px;
+      margin-bottom: 1rem; backdrop-filter: blur(4px);
+    }
+    .hero h1 {
+      font-size: 24px; font-weight: 800;
+      line-height: 1.2; margin-bottom: .6rem;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .hero h1 span { color: #90caf9; }
+    .hero p { font-size: 13px; color: rgba(255,255,255,0.8); max-width: 520px; line-height: 1.6; }
+
+    /* ── INFO BOX ── */
+    .info-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.1rem 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .info-icon {
+      width: 38px; height: 38px; border-radius: var(--radius-sm);
+      background: #fff9e6; display: flex; align-items: center;
+      justify-content: center; font-size: 20px; flex-shrink: 0;
+    }
+    .info-box p { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .info-box strong { color: var(--text); }
+
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 1rem; }
+
+    .step {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.25rem;
+      padding: 1.25rem 1.5rem;
+      transition: border-color .15s, box-shadow .15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .step::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: var(--step-color);
+      border-radius: 99px 0 0 99px;
+    }
+    .step:hover { border-color: var(--border-light); box-shadow: var(--shadow); }
+
+    /* Number badge */
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--step-color);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--step-color) 40%, transparent);
+    }
+
+    /* Center content */
+    .step-body { min-width: 0; }
+    .step-title {
+      font-size: 15px; font-weight: 700;
+      color: var(--text); margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .step-title span { color: var(--step-color); }
+
+    .tools-row { display: flex; flex-wrap: wrap; gap: 7px; }
+    .tool-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 99px; padding: 4px 10px;
+      font-size: 12px; font-weight: 500; color: var(--text-muted);
+      transition: all .15s;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .tool-badge i { font-size: 14px; color: var(--step-color); }
+    .tool-badge:hover { border-color: var(--step-color); color: var(--text); box-shadow: 0 2px 8px color-mix(in srgb, var(--step-color) 20%, transparent); }
+
+    /* Right description */
+    .step-desc {
+      font-size: 12px; color: var(--text-muted);
+      line-height: 1.55; max-width: 160px;
+      text-align: right; flex-shrink: 0;
+      border-left: 2px solid var(--border);
+      padding-left: 1rem;
+    }
+    .step-desc strong { color: var(--step-color); display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 3px; }
+
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 18px; }
+      .step { grid-template-columns: auto 1fr; gap: .9rem; padding: 1rem; }
+      .step-desc { display: none; }
+      .step-num { width: 40px; height: 40px; font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <div class="hero">
+    <div class="hero-badge"><i class="ti ti-bulb"></i> Guía de herramientas</div>
+    <h1>Herramientas de IA para<br><span>Tesis e Investigación Académica</span></h1>
+    <p>Otras herramientas de IA además de ChatGPT y Gemini. Una por cada etapa del proceso investigativo.</p>
+  </div>
+
+  <div class="info-box">
+    <div class="info-icon">💡</div>
+    <p><strong>Actúa como un tutor académico experto en investigación.</strong><br>
+    Estas herramientas de IA te ayudarán a cada paso del proceso de investigación y redacción académica.</p>
+  </div>
+
+  <div class="steps" id="steps"></div>
+
+</div>
+
+<script>
+const steps = [
+  {
+    n: 1,
+    color: '#4285f4',
+    title: 'Elección del tema de investigación',
+    tools: [
+      { icon: 'ti-search',    name: 'Perplexity', url: 'https://www.perplexity.ai/' },
+      { icon: 'ti-robot',     name: 'Grok',       url: 'https://grok.com/'          },
+      { icon: 'ti-test-pipe', name: 'Elicit',     url: 'https://elicit.com/'        }
+    ],
+    desc: 'Encontrar ideas, tendencias y delimitar el problema.'
+  },
+  {
+    n: 2,
+    color: '#34a853',
+    title: 'Búsqueda de antecedentes',
+    tools: [
+      { icon: 'ti-books',       name: 'Semantic Scholar', url: 'https://www.semanticscholar.org/' },
+      { icon: 'ti-users-group', name: 'Consensus',        url: 'https://consensus.app/'           },
+      { icon: 'ti-search',      name: 'Perplexity',       url: 'https://www.perplexity.ai/'       }
+    ],
+    desc: 'Encontrar papers y evidencia científica confiable.'
+  },
+  {
+    n: 3,
+    color: '#f59e0b',
+    title: 'Organización de artículos y referencias',
+    tools: [
+      { icon: 'ti-folder-open', name: 'Zotero',  url: 'https://www.zotero.org/'   },
+      { icon: 'ti-bookmark',    name: 'Mendeley', url: 'https://www.mendeley.com/' }
+    ],
+    desc: 'Guardar PDFs, organizar citas y bibliografía.'
+  },
+  {
+    n: 4,
+    color: '#8b5cf6',
+    title: 'Comprensión y análisis de papers',
+    tools: [
+      { icon: 'ti-telescope',        name: 'SciSpace',   url: 'https://scispace.com/'         },
+      { icon: 'ti-notebook',         name: 'NotebookLM', url: 'https://notebooklm.google/'    },
+      { icon: 'ti-message-chatbot',  name: 'txyz.ai',    url: 'https://txyz.ai/'              }
+    ],
+    desc: 'Entender artículos científicos complejos.'
+  },
+  {
+    n: 5,
+    color: '#06b6d4',
+    title: 'Redacción del marco teórico',
+    tools: [
+      { icon: 'ti-waves',   name: 'DeepSeek', url: 'https://chat.deepseek.com/' },
+      { icon: 'ti-feather', name: 'QuillBot', url: 'https://quillbot.com/'      },
+      { icon: 'ti-robot',   name: 'Grok',     url: 'https://grok.com/'          }
+    ],
+    desc: 'Redactar capítulos académicos correctamente.'
+  },
+  {
+    n: 6,
+    color: '#ef4444',
+    title: 'Revisión de naturalidad del contenido',
+    tools: [
+      { icon: 'ti-shield-check', name: 'ZeroGPT',   url: 'https://www.zerogpt.com/'         },
+      { icon: 'ti-feather',      name: 'QuillBot',   url: 'https://quillbot.com/'            },
+      { icon: 'ti-user-check',   name: 'Humanizer',  url: 'https://www.humanizerai.com/'     }
+    ],
+    desc: 'Verificar naturalidad y originalidad del contenido.'
+  },
+  {
+    n: 7,
+    color: '#6366f1',
+    title: 'Elaboración de diapositivas',
+    tools: [
+      { icon: 'ti-presentation', name: 'Gamma',      url: 'https://gamma.app/'            },
+      { icon: 'ti-notebook',     name: 'NotebookLM', url: 'https://notebooklm.google/'    }
+    ],
+    desc: 'Crear presentaciones visuales y profesionales.'
+  }
+];
+
+const container = document.getElementById('steps');
+
+steps.forEach(s => {
+  const toolsHtml = s.tools.map(t =>
+    `<a class="tool-badge" href="${t.url}" target="_blank" rel="noopener noreferrer"><i class="ti ${t.icon}"></i>${t.name}</a>`
+  ).join('');
+
+  container.innerHTML += `
+  <div class="step" style="--step-color:${s.color}">
+    <div class="step-num">${s.n}</div>
+    <div class="step-body">
+      <div class="step-title">${s.title}</div>
+      <div class="tools-row">${toolsHtml}</div>
+    </div>
+    <div class="step-desc">
+      <strong>Para qué sirve</strong>
+      ${s.desc}
+    </div>
+  </div>`;
+});
+</script>
+</body>
+</html>

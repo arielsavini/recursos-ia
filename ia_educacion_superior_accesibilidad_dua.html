@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA para la accesibilidad y el DUA en la universidad</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --font-sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      --color-background-primary: #ffffff;
+      --color-background-secondary: #f3f4f8;
+      --color-background-info: #e6f1fb;
+      --color-text-primary: #1a1d2e;
+      --color-text-secondary: #5c6480;
+      --color-text-tertiary: #9aa0bc;
+      --color-text-info: #0c447c;
+      --color-border-secondary: #c8cde0;
+      --color-border-tertiary: #e2e5f0;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --color-background-primary: #1a1d2e;
+        --color-background-secondary: #23263a;
+        --color-background-info: #042c53;
+        --color-text-primary: #e8eaf6;
+        --color-text-secondary: #9aa0bc;
+        --color-text-tertiary: #5c6480;
+        --color-text-info: #b5d4f4;
+        --color-border-secondary: #3a3f5c;
+        --color-border-tertiary: #2c2f45;
+      }
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-background-secondary);
+      color: var(--color-text-primary);
+      min-height: 100vh;
+      padding: 2rem 1.5rem;
+    }
+
+    .page-wrapper {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+    }
+
+    .hero { padding: 2.5rem 0 1.5rem; border-bottom: 0.5px solid var(--color-border-tertiary); margin-bottom: 2rem; }
+    .hero-tag { display: inline-flex; align-items: center; gap: 6px; background: var(--color-background-info); color: var(--color-text-info); font-size: 12px; padding: 4px 12px; border-radius: var(--border-radius-md); margin-bottom: 1rem; }
+    .hero h1 { font-size: 22px; font-weight: 500; color: var(--color-text-primary); margin-bottom: .5rem; line-height: 1.3; }
+    .hero p { font-size: 14px; color: var(--color-text-secondary); max-width: 560px; line-height: 1.6; }
+
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 2rem; }
+    .stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 1rem; text-align: center; border: 0.5px solid var(--color-border-tertiary); }
+    .stat-n { font-size: 24px; font-weight: 500; color: var(--color-text-primary); }
+    .stat-l { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; align-items: center; }
+    .filters span { font-size: 13px; color: var(--color-text-secondary); }
+    .filter-btn { font-size: 12px; padding: 5px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all .15s; }
+    .filter-btn:hover, .filter-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1rem; }
+    .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; transition: border-color .15s; }
+    .card:hover { border-color: var(--color-border-secondary); }
+    .card-top { display: flex; align-items: flex-start; gap: 12px; margin-bottom: .75rem; }
+    .card-icon { width: 40px; height: 40px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 20px; }
+    .card-num { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 2px; }
+    .card-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); line-height: 1.4; }
+    .card-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; margin-bottom: 1rem; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag { font-size: 11px; padding: 3px 8px; border-radius: var(--border-radius-md); font-weight: 500; }
+    .tag-dua { background: #EEEDFE; color: #3C3489; }
+    .tag-acc { background: #E1F5EE; color: #085041; }
+    .tag-ia  { background: #E6F1FB; color: #0C447C; }
+    .card.hidden { display: none; }
+
+    @media (prefers-color-scheme: dark) {
+      .tag-dua { background: #26215C; color: #CECBF6; }
+      .tag-acc { background: #04342C; color: #9FE1CB; }
+      .tag-ia  { background: #042C53; color: #B5D4F4; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <h2 class="sr-only">20 ejemplos de uso de inteligencia artificial en educación superior que favorecen la accesibilidad y el Diseño Universal para el Aprendizaje</h2>
+
+  <div class="hero">
+    <div class="hero-tag"><i class="ti ti-sparkles" aria-hidden="true"></i> IA · Educación Superior</div>
+    <h1>IA para la accesibilidad y el DUA en la universidad</h1>
+    <p>20 aplicaciones concretas de inteligencia artificial que fortalecen el acceso, la participación y el aprendizaje para todos los estudiantes, en línea con los principios del Diseño Universal para el Aprendizaje.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n">20</div><div class="stat-l">Ejemplos</div></div>
+    <div class="stat"><div class="stat-n">3</div><div class="stat-l">Principios DUA</div></div>
+    <div class="stat"><div class="stat-n">6</div><div class="stat-l">Categorías</div></div>
+  </div>
+
+  <div class="filters">
+    <span>Filtrar:</span>
+    <button class="filter-btn active" data-cat="all" onclick="filter(this,'all')">Todos</button>
+    <button class="filter-btn" data-cat="representacion" onclick="filter(this,'representacion')">Representación</button>
+    <button class="filter-btn" data-cat="accion" onclick="filter(this,'accion')">Acción y expresión</button>
+    <button class="filter-btn" data-cat="motivacion" onclick="filter(this,'motivacion')">Motivación</button>
+    <button class="filter-btn" data-cat="comunicacion" onclick="filter(this,'comunicacion')">Comunicación</button>
+    <button class="filter-btn" data-cat="evaluacion" onclick="filter(this,'evaluacion')">Evaluación</button>
+    <button class="filter-btn" data-cat="gestion" onclick="filter(this,'gestion')">Gestión académica</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+</div>
+<script>
+const items = [
+  {n:1,icon:"ti-volume",color:"#E6F1FB",col:"#0C447C",title:"Texto a voz con IA adaptativa",body:"Herramientas como Microsoft Azure TTS o Natural Reader generan narración oral de materiales escritos, ajustando velocidad y tono según las preferencias del estudiante. Esencial para estudiantes con discapacidad visual o dislexia.",cats:["representacion"],tags:["DUA: Percepción","Accesibilidad","IA generativa"]},
+  {n:2,icon:"ti-microphone",color:"#E1F5EE",col:"#085041",title:"Transcripción automática en tiempo real",body:"Sistemas como Otter.ai o Google Live Transcribe transcriben clases presenciales y virtuales al instante, permitiendo que estudiantes sordos o hipoacúsicos accedan a los contenidos sin intermediarios humanos.",cats:["representacion","comunicacion"],tags:["DUA: Percepción","Accesibilidad","IA de reconocimiento"]},
+  {n:3,icon:"ti-language",color:"#EEEDFE",col:"#3C3489",title:"Traducción e interpretación multilingüe",body:"Modelos de IA como DeepL o Google Translate API integrados en plataformas LMS permiten ofrecer materiales en la lengua materna del estudiante, reduciendo barreras lingüísticas y culturales en el aula universitaria.",cats:["representacion"],tags:["DUA: Comprensión","Accesibilidad","Multilingüismo"]},
+  {n:4,icon:"ti-adjustments",color:"#FAEEDA",col:"#633806",title:"Resúmenes automáticos y simplificación de textos",body:"Modelos de lenguaje como GPT-4 o Claude pueden reescribir materiales académicos complejos en niveles de lectura ajustados, beneficiando a estudiantes con discapacidad cognitiva, TEA o dificultades de comprensión lectora.",cats:["representacion"],tags:["DUA: Comprensión","Accesibilidad","IA generativa"]},
+  {n:5,icon:"ti-chart-dots",color:"#EAF3DE",col:"#27500A",title:"Plataformas de aprendizaje adaptativo",body:"Sistemas como Knewton o Carnegie Learning analizan el desempeño del estudiante y reajustan el recorrido de aprendizaje en tiempo real, ofreciendo múltiples caminos hacia los mismos objetivos curriculares.",cats:["accion","motivacion"],tags:["DUA: Expresión","Personalización","IA predictiva"]},
+  {n:6,icon:"ti-pencil",color:"#FAECE7",col:"#712B13",title:"Asistentes de escritura con IA",body:"Herramientas como Grammarly, QuillBot o Copilot apoyan la producción escrita mediante sugerencias contextuales, lo que beneficia a estudiantes con disgrafía, dislexia o que escriben en una segunda lengua.",cats:["accion"],tags:["DUA: Expresión","Accesibilidad","IA generativa"]},
+  {n:7,icon:"ti-speakerphone",color:"#E6F1FB",col:"#0C447C",title:"Reconocimiento de voz para producción académica",body:"Dictado por voz con IA (Dragon NaturallySpeaking, Google Voice Typing) permite que estudiantes con movilidad reducida o dificultades motoras produzcan textos, presentaciones y exámenes sin usar teclado.",cats:["accion"],tags:["DUA: Expresión","Accesibilidad","IA de reconocimiento"]},
+  {n:8,icon:"ti-robot",color:"#EEEDFE",col:"#3C3489",title:"Tutores virtuales y chatbots académicos",body:"Chatbots con LLM integrado (como Khanmigo o tutores propios de universidades) ofrecen acompañamiento personalizado 24/7, respondiendo dudas en el momento en que el estudiante las tiene, sin depender de turnos o disponibilidad docente.",cats:["motivacion","accion"],tags:["DUA: Autorregulación","Accesibilidad","IA generativa"]},
+  {n:9,icon:"ti-eye",color:"#E1F5EE",col:"#085041",title:"Descripción automática de imágenes y gráficos",body:"Modelos multimodales como GPT-4o o Be My AI generan descripciones textuales detalladas de imágenes, infografías y tablas incluidas en materiales educativos, garantizando el acceso de estudiantes con discapacidad visual.",cats:["representacion"],tags:["DUA: Percepción","Accesibilidad","IA multimodal"]},
+  {n:10,icon:"ti-presentation",color:"#FAEEDA",col:"#633806",title:"Generación automática de subtítulos en videos",body:"Herramientas como YouTube AI Captions, Rev o Whisper de OpenAI generan subtítulos precisos en videos educativos grabados, con posibilidad de edición y traducción, garantizando el acceso universal a los contenidos audiovisuales.",cats:["representacion","comunicacion"],tags:["DUA: Percepción","Accesibilidad","IA de reconocimiento"]},
+  {n:11,icon:"ti-flame",color:"#FAECE7",col:"#712B13",title:"Gamificación personalizada con IA",body:"Plataformas como Duolingo o Gradescope adaptan dinámicas de gamificación al perfil motivacional de cada estudiante, ajustando recompensas, desafíos y ritmos para mantener el interés y reducir la ansiedad académica.",cats:["motivacion"],tags:["DUA: Motivación","Personalización","IA predictiva"]},
+  {n:12,icon:"ti-accessible",color:"#E6F1FB",col:"#0C447C",title:"Interfaces adaptativas según necesidades sensoriales",body:"Sistemas de IA detectan el dispositivo, las preferencias de contraste y las necesidades del usuario para adaptar dinámicamente la interfaz de las plataformas educativas (colores, tamaño de fuente, disposición de elementos).",cats:["representacion","accion"],tags:["DUA: Percepción","Accesibilidad web","IA adaptativa"]},
+  {n:13,icon:"ti-clipboard-check",color:"#EAF3DE",col:"#27500A",title:"Evaluación flexible multimodal con IA",body:"Plataformas de evaluación con IA permiten que los estudiantes demuestren sus aprendizajes mediante texto, voz, video o esquemas, y la IA procesa y califica cada formato, permitiendo múltiples medios de expresión.",cats:["evaluacion"],tags:["DUA: Expresión","Accesibilidad","IA generativa"]},
+  {n:14,icon:"ti-alert-triangle",color:"#FAEEDA",col:"#633806",title:"Alertas tempranas y soporte proactivo",body:"Sistemas de IA analítica (como los de Civitas Learning o EAB Navigate) identifican patrones de riesgo académico y de desvinculación, activando acciones de acompañamiento antes de que el estudiante abandone.",cats:["gestion","motivacion"],tags:["DUA: Autorregulación","Inclusión","IA predictiva"]},
+  {n:15,icon:"ti-3d-cube-sphere",color:"#EEEDFE",col:"#3C3489",title:"Realidad aumentada accesible con IA",body:"Aplicaciones con IA que superponen capas de información accesible (audiodescripciones, lengua de señas en avatar, texto aumentado) sobre materiales físicos o digitales, enriqueciendo la experiencia de laboratorios y prácticas.",cats:["representacion","accion"],tags:["DUA: Percepción","Tecnología asistiva","IA multimodal"]},
+  {n:16,icon:"ti-messages",color:"#E1F5EE",col:"#085041",title:"Intérpretes virtuales de lengua de señas",body:"Avatares animados con IA (como los de SignAll o Hand Talk) traducen contenidos hablados o escritos a lengua de señas en tiempo real, ofreciendo una alternativa comunicacional para estudiantes sordos sin depender de intérpretes humanos.",cats:["comunicacion","representacion"],tags:["DUA: Percepción","Accesibilidad","IA generativa"]},
+  {n:17,icon:"ti-list-check",color:"#FAECE7",col:"#712B13",title:"Planificación y organización con asistentes de IA",body:"Herramientas como Notion AI o Microsoft Copilot ayudan a estudiantes con TDAH, TEA o dificultades ejecutivas a organizar tareas, gestionar tiempos y descomponer trabajos complejos en pasos manejables.",cats:["motivacion","accion"],tags:["DUA: Autorregulación","Accesibilidad cognitiva","IA generativa"]},
+  {n:18,icon:"ti-school",color:"#E6F1FB",col:"#0C447C",title:"Generación de materiales en formatos alternativos",body:"Modelos de IA generativa pueden transformar automáticamente un texto académico en un mapa conceptual, un pódcast, un video explicativo o una infografía, ofreciendo múltiples representaciones del mismo contenido.",cats:["representacion"],tags:["DUA: Representación","Accesibilidad","IA generativa"]},
+  {n:19,icon:"ti-brain",color:"#EAF3DE",col:"#27500A",title:"Feedback formativo personalizado e inmediato",body:"Sistemas de IA como Turnitin Feedback Studio o Gradescope ofrecen retroalimentación detallada y personalizada sobre trabajos escritos, reduciendo los tiempos de espera y permitiendo ciclos de mejora continua accesibles para todos.",cats:["evaluacion"],tags:["DUA: Expresión","Inclusión","IA generativa"]},
+  {n:20,icon:"ti-users-group",color:"#FAEEDA",col:"#633806",title:"Análisis de accesibilidad de materiales docentes",body:"Herramientas de IA como WAVE AI o Ally (Blackboard) auditan automáticamente los materiales subidos al LMS, identificando barreras de accesibilidad y sugiriendo correcciones al docente antes de que el recurso sea publicado.",cats:["gestion"],tags:["DUA: Percepción","Accesibilidad web","IA auditora"]}
+];
+
+function renderAll(cats){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const filtered = cats === 'all' ? items : items.filter(i => i.cats.includes(cats));
+  filtered.forEach(d => {
+    const tagHtml = d.tags.map(t => {
+      let cls = 'tag-ia';
+      if (t.includes('DUA')) cls = 'tag-dua';
+      else if (t.includes('Accesibilidad') || t.includes('Inclusión') || t.includes('asistiva')) cls = 'tag-acc';
+      return `<span class="tag ${cls}">${t}</span>`;
+    }).join('');
+    grid.innerHTML += `
+    <div class="card">
+      <div class="card-top">
+        <div class="card-icon" style="background:${d.color}">
+          <i class="ti ${d.icon}" style="color:${d.col}" aria-hidden="true"></i>
+        </div>
+        <div>
+          <div class="card-num">Ejemplo ${d.n}</div>
+          <div class="card-title">${d.title}</div>
+        </div>
+      </div>
+      <div class="card-body">${d.body}</div>
+      <div class="card-tags">${tagHtml}</div>
+    </div>`;
+  });
+}
+
+function filter(btn, cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll(cat);
+}
+
+renderAll('all');
+</script>
+</body>
+</html>

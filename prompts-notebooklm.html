@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>20 Prompts para NotebookLM</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:         #34a853;
+      --green-light:   #e8f5e9;
+      --green-dark:    #1e7e34;
+      --blue-light:    #e6f1fb;
+      --blue-text:     #0c447c;
+      --purple-light:  #eeedfe;
+      --purple-text:   #3c3489;
+      --orange-light:  #faeeda;
+      --orange-text:   #633806;
+      --bg:            #f3f6f9;
+      --surface:       #ffffff;
+      --border:        #e2e5f0;
+      --border-light:  #c8cde0;
+      --text:          #1a1d2e;
+      --text-muted:    #5c6480;
+      --text-dim:      #9aa0bc;
+      --radius:        12px;
+      --radius-sm:     8px;
+      --shadow:        0 4px 20px rgba(52,168,83,0.10);
+      --shadow-sm:     0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:           #13161f;
+        --surface:      #1a1d2e;
+        --border:       #2c2f45;
+        --border-light: #3a3f5c;
+        --text:         #e8eaf6;
+        --text-muted:   #9aa0bc;
+        --text-dim:     #5c6480;
+        --green-light:  #0a2e14;
+        --blue-light:   #042c53;
+        --purple-light: #26215c;
+        --orange-light: #3b2006;
+      }
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .page-wrapper { max-width: 1140px; margin: 0 auto; }
+
+    /* HERO */
+    .hero {
+      padding: 2.5rem 0 2rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2rem;
+    }
+    .hero-tag {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--green-light); color: var(--green-dark);
+      font-size: 12px; font-weight: 600; padding: 5px 14px;
+      border-radius: 99px; margin-bottom: 1rem;
+      border: 1px solid rgba(52,168,83,0.25);
+    }
+    .hero h1 {
+      font-size: 26px; font-weight: 700; color: var(--text);
+      margin-bottom: .5rem; line-height: 1.3;
+    }
+    .hero h1 span { color: var(--green); }
+    .hero p { font-size: 14px; color: var(--text-muted); max-width: 580px; line-height: 1.6; }
+
+    /* STATS */
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 2rem;
+    }
+    .stat {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1rem; text-align: center;
+    }
+    .stat-n { font-size: 26px; font-weight: 700; color: var(--green); }
+    .stat-l { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    /* FILTERS */
+    .filters {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 1.75rem; align-items: center;
+    }
+    .filters span { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .filter-btn {
+      font-size: 12px; padding: 6px 14px; border-radius: 99px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text-muted); cursor: pointer; transition: all .15s;
+      font-weight: 500;
+    }
+    .filter-btn:hover { border-color: var(--green); color: var(--green-dark); }
+    .filter-btn.active {
+      background: var(--green); color: #fff;
+      border-color: var(--green);
+    }
+
+    /* GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.1rem;
+    }
+
+    /* CARD */
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 1.25rem;
+      display: flex; flex-direction: column; gap: 10px;
+      transition: border-color .15s, box-shadow .15s;
+      position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: var(--card-color, var(--green));
+      border-radius: 99px 0 0 99px;
+    }
+    .card:hover {
+      border-color: var(--border-light);
+      box-shadow: var(--shadow);
+    }
+    .card.hidden { display: none; }
+
+    /* CARD HEADER */
+    .card-head { display: flex; align-items: flex-start; gap: 12px; }
+    .card-icon {
+      width: 40px; height: 40px; border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 19px;
+    }
+    .card-num {
+      font-size: 11px; font-weight: 600; color: var(--text-dim);
+      margin-bottom: 2px; letter-spacing: .3px;
+    }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text); line-height: 1.35; }
+    .card-desc { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+    /* PROMPT BLOCK */
+    .prompt-block {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); padding: 12px 14px;
+      position: relative; margin-top: 2px;
+    }
+    .prompt-label {
+      font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--green);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+    }
+    .prompt-text {
+      font-size: 12.5px; color: var(--text-muted); line-height: 1.6;
+      font-style: italic;
+    }
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 8px;
+      font-size: 11px; color: var(--text-dim);
+      cursor: pointer; transition: all .15s;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .copy-btn:hover { border-color: var(--green); color: var(--green); }
+    .copy-btn.copied { background: var(--green-light); border-color: var(--green); color: var(--green-dark); }
+
+    /* TAGS */
+    .card-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag {
+      font-size: 11px; font-weight: 500; padding: 3px 9px;
+      border-radius: 99px; border: 1px solid transparent;
+    }
+    .tag-aprendizaje { background: var(--green-light);   color: var(--green-dark); border-color: rgba(52,168,83,0.25); }
+    .tag-investigacion { background: var(--blue-light);  color: var(--blue-text);  border-color: rgba(12,68,124,0.2); }
+    .tag-creacion     { background: var(--purple-light); color: var(--purple-text); border-color: rgba(60,52,137,0.2); }
+    .tag-productividad { background: var(--orange-light); color: var(--orange-text); border-color: rgba(99,56,6,0.2); }
+
+    /* RESPONSIVE */
+    @media (max-width: 640px) {
+      body { padding: 1rem; }
+      .hero h1 { font-size: 20px; }
+      .stats { grid-template-columns: repeat(3, 1fr); }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <div class="hero">
+    <div class="hero-tag">
+      <i class="ti ti-notebook" aria-hidden="true"></i> NotebookLM · Prompts
+    </div>
+    <h1>20 Prompts para <span>NotebookLM</span></h1>
+    <p>Para aprender más rápido, pensar más profundo e investigar mejor. Copiá cada prompt y usalo directamente en tu cuaderno.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="stat-n">20</div><div class="stat-l">Prompts</div></div>
+    <div class="stat"><div class="stat-n">4</div><div class="stat-l">Categorías</div></div>
+    <div class="stat"><div class="stat-n">∞</div><div class="stat-l">Posibilidades</div></div>
+  </div>
+
+  <div class="filters">
+    <span>Filtrar:</span>
+    <button class="filter-btn active" onclick="filterCards(this,'all')">Todos</button>
+    <button class="filter-btn" onclick="filterCards(this,'aprendizaje')">📗 Aprendizaje</button>
+    <button class="filter-btn" onclick="filterCards(this,'investigacion')">🔬 Investigación</button>
+    <button class="filter-btn" onclick="filterCards(this,'creacion')">✨ Creación</button>
+    <button class="filter-btn" onclick="filterCards(this,'productividad')">⚡ Productividad</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+</div>
+
+<script>
+const prompts = [
+  {
+    n:1, icon:'ti-list-details', color:'#e8f5e9', col:'#1e7e34', cardColor:'#34a853',
+    title:'Resumen Instantáneo',
+    desc:'Convierte documentos largos en ideas fáciles de entender.',
+    prompt:'"Resume esta fuente en las 10 ideas más importantes, argumentos clave y conclusiones prácticas en español claro."',
+    cats:['aprendizaje']
+  },
+  {
+    n:2, icon:'ti-school', color:'#e6f1fb', col:'#0c447c', cardColor:'#4285f4',
+    title:'Explicación para Principiantes',
+    desc:'Explica temas complejos de forma sencilla.',
+    prompt:'"Explica este tema como si fuera un principiante completo. Usa analogías simples, paso a paso y evita la jerga."',
+    cats:['aprendizaje']
+  },
+  {
+    n:3, icon:'ti-zoom-in', color:'#eeedfe', col:'#3c3489', cardColor:'#8b5cf6',
+    title:'Análisis Profundo',
+    desc:'Comprende el tema capa por capa.',
+    prompt:'"Descompón esta fuente en conceptos clave, supuestos ocultos, matices de nivel experto y lo que la mayoría de los lectores suele pasar por alto."',
+    cats:['investigacion']
+  },
+  {
+    n:4, icon:'ti-git-compare', color:'#faeeda', col:'#633806', cardColor:'#f59e0b',
+    title:'Comparar Fuentes',
+    desc:'Detecta acuerdos y contradicciones.',
+    prompt:'"Compara todas las fuentes cargadas. Muestra en qué coinciden, dónde difieren y qué ideas aporta cada fuente."',
+    cats:['investigacion']
+  },
+  {
+    n:5, icon:'ti-notebook', color:'#e8f5e9', col:'#1e7e34', cardColor:'#34a853',
+    title:'Generador de Notas de Estudio',
+    desc:'Crea notas de estudio claras al instante.',
+    prompt:'"Convierte este contenido en notas de estudio estructuradas con encabezados, viñetas, definiciones y ejemplos memorables."',
+    cats:['aprendizaje']
+  },
+  {
+    n:6, icon:'ti-cards', color:'#e6f1fb', col:'#0c447c', cardColor:'#4285f4',
+    title:'Generador de Tarjetas Didácticas',
+    desc:'Convierte la información en recursos para repasar activamente.',
+    prompt:'"Genera 25 tarjetas didácticas de alta calidad con preguntas al frente y respuestas concisas al reverso a partir de este material."',
+    cats:['aprendizaje']
+  },
+  {
+    n:7, icon:'ti-help-circle', color:'#eeedfe', col:'#3c3489', cardColor:'#8b5cf6',
+    title:'Cuestionario Interactivo',
+    desc:'Pon a prueba tu comprensión.',
+    prompt:'"Crea un cuestionario progresivo de fácil a difícil basado solo en esta fuente. Espera mis respuestas y calificame."',
+    cats:['aprendizaje']
+  },
+  {
+    n:8, icon:'ti-brain', color:'#faeeda', col:'#633806', cardColor:'#f59e0b',
+    title:'Ganchos de Memoria',
+    desc:'Crea trucos para recordar información.',
+    prompt:'"Crea mnemotecnias, analogías y anclajes de memoria que me ayuden a retener las partes más importantes de este contenido."',
+    cats:['aprendizaje']
+  },
+  {
+    n:9, icon:'ti-timeline', color:'#e8f5e9', col:'#1e7e34', cardColor:'#34a853',
+    title:'Extracción de Línea de Tiempo',
+    desc:'Organiza eventos cronológicamente.',
+    prompt:'"Extrae cada evento importante, hito o desarrollo de estas fuentes y ordénalos en una línea de tiempo limpia."',
+    cats:['investigacion']
+  },
+  {
+    n:10, icon:'ti-quote', color:'#e6f1fb', col:'#0c447c', cardColor:'#4285f4',
+    title:'Buscador de Citas Clave',
+    desc:'Encuentra la evidencia de apoyo más sólida.',
+    prompt:'"Extrae las citas, datos y evidencias más impactantes de estas fuentes que pueda citar en escritos o presentaciones."',
+    cats:['investigacion']
+  },
+  {
+    n:11, icon:'ti-zoom-question', color:'#eeedfe', col:'#3c3489', cardColor:'#8b5cf6',
+    title:'Detectar Vacíos de Investigación',
+    desc:'Descubre lo que falta por responder.',
+    prompt:'"Identifica preguntas sin respuesta, argumentos débiles, evidencia faltante y vacíos de investigación en estos materiales."',
+    cats:['investigacion']
+  },
+  {
+    n:12, icon:'ti-scale', color:'#faeeda', col:'#633806', cardColor:'#f59e0b',
+    title:'Debatir Ambos Lados',
+    desc:'Fortalece tu pensamiento crítico.',
+    prompt:'"Presenta los argumentos más sólidos a favor y en contra de la tesis principal de estas fuentes, como lo harían expertos debatiendo."',
+    cats:['investigacion']
+  },
+  {
+    n:13, icon:'ti-template', color:'#e8f5e9', col:'#1e7e34', cardColor:'#34a853',
+    title:'Convertir en Marco de Trabajo',
+    desc:'Extrae sistemas repetibles.',
+    prompt:'"Convierte las ideas de estas fuentes en un marco de trabajo práctico, lista de verificación o sistema repetible que pueda aplicar."',
+    cats:['creacion']
+  },
+  {
+    n:14, icon:'ti-refresh', color:'#e6f1fb', col:'#0c447c', cardColor:'#4285f4',
+    title:'Repurponer Contenido',
+    desc:'Transforma la investigación en contenido publicable.',
+    prompt:'"Usa estas fuentes para generar: una publicación de LinkedIn, esquema de artículo, hilo de tweets e idea de boletín informativo."',
+    cats:['creacion']
+  },
+  {
+    n:15, icon:'ti-microphone-2', color:'#eeedfe', col:'#3c3489', cardColor:'#8b5cf6',
+    title:'Modo Entrevista Experto',
+    desc:'Hazle preguntas al cuaderno como a un experto.',
+    prompt:'"Actúa como el principal experto en estos materiales. Haré preguntas — responde solo con base en las fuentes."',
+    cats:['productividad']
+  },
+  {
+    n:16, icon:'ti-briefcase', color:'#faeeda', col:'#633806', cardColor:'#f59e0b',
+    title:'Resumen Ejecutivo',
+    desc:'Condensa para la toma de decisiones ocupada.',
+    prompt:'"Crea un resumen ejecutivo de 5 minutos con solo las ideas más estratégicas, implicaciones y puntos de acción."',
+    cats:['productividad']
+  },
+  {
+    n:17, icon:'ti-calendar-event', color:'#e8f5e9', col:'#1e7e34', cardColor:'#34a853',
+    title:'Creador de Plan de Lección',
+    desc:'Transforma notas en un currículo.',
+    prompt:'"Convierte este cuaderno en un plan de aprendizaje de 7 días con acciones diarias, ejercicios y puntos de control."',
+    cats:['productividad']
+  },
+  {
+    n:18, icon:'ti-bulb', color:'#e6f1fb', col:'#0c447c', cardColor:'#4285f4',
+    title:'Generador de Ideas',
+    desc:'Usa las fuentes para estimular nuevos enfoques.',
+    prompt:'"Genera 20 ideas originales, oportunidades o aplicaciones inspiradas en los materiales que he subido."',
+    cats:['creacion']
+  },
+  {
+    n:19, icon:'ti-presentation', color:'#eeedfe', col:'#3c3489', cardColor:'#8b5cf6',
+    title:'Simplificar para Enseñar',
+    desc:'Prepara para explicar a otros.',
+    prompt:'"Reescribe las ideas clave de estas fuentes en un guion de enseñanza que pueda explicar a alguien en 5 minutos."',
+    cats:['creacion']
+  },
+  {
+    n:20, icon:'ti-rocket', color:'#faeeda', col:'#633806', cardColor:'#f59e0b',
+    title:'Plan de Acción',
+    desc:'Pasa del conocimiento a la ejecución.',
+    prompt:'"Con base en todo en estas fuentes, crea un plan de acción práctico con primeros pasos, prioridades y fechas límite."',
+    cats:['productividad']
+  }
+];
+
+const catLabel = {
+  aprendizaje:  { cls: 'tag-aprendizaje',   label: '📗 Aprendizaje' },
+  investigacion:{ cls: 'tag-investigacion',  label: '🔬 Investigación' },
+  creacion:     { cls: 'tag-creacion',       label: '✨ Creación' },
+  productividad:{ cls: 'tag-productividad',  label: '⚡ Productividad' }
+};
+
+function renderAll() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  prompts.forEach(p => {
+    const tagsHtml = p.cats.map(c => {
+      const t = catLabel[c];
+      return `<span class="tag ${t.cls}">${t.label}</span>`;
+    }).join('');
+    grid.innerHTML += `
+    <div class="card" data-cats="${p.cats.join(',')}" style="--card-color:${p.cardColor}">
+      <div class="card-head">
+        <div class="card-icon" style="background:${p.color}">
+          <i class="ti ${p.icon}" style="color:${p.col}" aria-hidden="true"></i>
+        </div>
+        <div>
+          <div class="card-num">Prompt ${p.n}</div>
+          <div class="card-title">${p.title}</div>
+        </div>
+      </div>
+      <div class="card-desc">${p.desc}</div>
+      <div class="prompt-block">
+        <div class="prompt-label"><i class="ti ti-clipboard-text"></i> Prompt</div>
+        <div class="prompt-text">${p.prompt}</div>
+        <button class="copy-btn" onclick="copyPrompt(this, ${p.n - 1})" title="Copiar prompt">
+          <i class="ti ti-copy"></i> Copiar
+        </button>
+      </div>
+      <div class="card-tags">${tagsHtml}</div>
+    </div>`;
+  });
+}
+
+function filterCards(btn, cat) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(card => {
+    const cats = card.dataset.cats.split(',');
+    card.classList.toggle('hidden', cat !== 'all' && !cats.includes(cat));
+  });
+}
+
+function copyPrompt(btn, idx) {
+  const text = prompts[idx].prompt.replace(/^"|"$/g, '');
+  navigator.clipboard.writeText(text).then(() => {
+    btn.innerHTML = '<i class="ti ti-check"></i> Copiado';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.innerHTML = '<i class="ti ti-copy"></i> Copiar';
+      btn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+renderAll();
+</script>
+</body>
+</html>
